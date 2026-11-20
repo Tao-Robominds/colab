@@ -12,15 +12,15 @@ sam4tun/
   4_detection.py
   5_sam.py
   6_evaluation.py
-  family_io.py
-  t12_geometry.py
-  t3_geometry.py
-  t45_geometry.py
   run_stages.py
   helpers/
     design_blueprint.py
+    family_io.py
     pipeline_io.py
     pipeline_state.py
+    t12_geometry.py
+    t3_geometry.py
+    t45_geometry.py
   segment-anything/
     segment_anything/
     sam_vit_h_4b8939.pth
@@ -48,6 +48,6 @@ Or run one stage:
 ./venv/bin/python sam4tun/1_unfolding.py baseline
 ```
 
-`1_unfolding.py` reads design blueprint fields from `PROXY4TUN_TUNNEL_META` for the active `PROXY4TUN_SUBSET`: diameter, ring length, ring count, and orientation. Family parameter packs load through `family_io.py` from `PROXY4TUN_PARAMS_DIR`.
+`1_unfolding.py` reads design blueprint fields from `PROXY4TUN_TUNNEL_META` for the active `PROXY4TUN_SUBSET`: diameter, ring length, ring count, and orientation. Family parameter packs load through `helpers/family_io.py` from `PROXY4TUN_PARAMS_DIR`.
 
 Evaluation writes to `<out-root>/<tunnel_id>/evaluation/performance.md`.

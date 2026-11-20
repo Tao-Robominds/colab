@@ -18,7 +18,7 @@ for _p in (_SAM4TUN_DIR, _SAM_PKG):
 
 from helpers.pipeline_io import ensure_dir
 
-import family_io
+from helpers import family_io
 
 tunnel_id = sys.argv[1]
 family_mode = family_io.load_family_mode()

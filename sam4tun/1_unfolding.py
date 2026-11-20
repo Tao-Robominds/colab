@@ -16,7 +16,7 @@ from helpers.design_blueprint import load_design_blueprint
 from helpers.pipeline_io import ensure_dir
 from helpers.pipeline_state import load_state, save_state
 
-import family_io
+from helpers import family_io
 
 import numpy as np
 import pandas as pd

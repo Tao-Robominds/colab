@@ -6,7 +6,8 @@ import json
 import os
 
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-_REPO_ROOT = os.path.dirname(_THIS_DIR)
+_SAM4TUN_DIR = os.path.dirname(_THIS_DIR)
+_REPO_ROOT = os.path.dirname(_SAM4TUN_DIR)
 
 VALID_MODES = ("staggered", "continuous", "complex")
 
@@ -75,7 +76,7 @@ def _resolve_params_root(params_dir: str | None = None) -> str:
     env = (os.environ.get("PROXY4TUN_PARAMS_DIR") or "").strip()
     if env:
         return os.path.abspath(env)
-    return os.path.join(_THIS_DIR, "params")
+    return os.path.join(_SAM4TUN_DIR, "params")
 
 
 def load_family_mode(params_dir: str | None = None) -> str:

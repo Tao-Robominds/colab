@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 tunnel_id = sys.argv[1]
 
 
-import family_io
+from helpers import family_io
 
 params, param_file, family_mode = family_io.load_stage_params("detecting")
 print(f"[unified] stage=detecting family_mode={family_mode}")

@@ -29,10 +29,10 @@ from segment_anything import sam_model_registry, SamPredictor
 from segment_anything.utils.transforms import ResizeLongestSide
 from matplotlib.path import Path
 
-import family_io
-import t12_geometry
-import t3_geometry
-import t45_geometry
+from helpers import family_io
+from helpers import t12_geometry
+from helpers import t3_geometry
+from helpers import t45_geometry
 
 tunnel_id = sys.argv[1]
 
