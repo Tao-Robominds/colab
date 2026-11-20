@@ -4,7 +4,7 @@
 
 This workspace uses **Research State Transition (RST)** as a working name for the record connecting a registered research state to its observed outcome and next action. This expansion defines the local schema; it does not assert that an attached article uses the same acronym.
 
-An RST record preserves evidence and decisions. It is not a transcript of internal reasoning, a natural-language substitute for code, or an automatic knowledge claim. Keep explanatory text in `knowledge/` and link it through `knowledge_ref`. Keep full code in the immutable source revisions that the record names.
+An RST record preserves evidence and decisions. It is not a transcript of internal reasoning, a natural-language substitute for code, or an automatic knowledge claim. Keep explanatory text in `dikw/knowledge/` and link it through `knowledge_ref`. Keep full code in the immutable source revisions that the record names.
 
 `records.py` implements an immutable before record and a separate after record. `preregister_and_execute` in `orchestrator.py` seals the plan before starting the actual versioned arm runs, binds the registration receipt, and rejects pre-existing output directories and protected-evaluator changes. `verify_preregistration` checks both record and plan digests. `append_outcome` links the result to that before record, checks the planned arm commits, and creates a new file without overwriting the previous one.
 

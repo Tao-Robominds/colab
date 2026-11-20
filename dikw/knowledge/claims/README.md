@@ -9,9 +9,9 @@ Keep four levels distinct:
 | Data | A depth array, detected boundary coordinates, final point labels | Immutable artefact archive |
 | Information | A design-conditioned comparison or registered experiment outcome | Machine-readable evidence and RST records |
 | Knowledge | A relation supported by linked evidence and executable checks under stated conditions | Accepted claim record and explanatory text here |
-| Wisdom | A scoped decision principle synthesised from accepted knowledge | Accepted principle in `wisdom/` |
+| Wisdom | A scoped decision principle synthesised from accepted knowledge | Accepted principle in `dikw/wisdom/` |
 
-Design documents, literature notes, candidate metrics, hypotheses, and provisional diagnoses may reside under `knowledge/` for organisation. Their explicit status remains specification, source note, proposed, or provisional. Directory location cannot promote them.
+Design documents, literature notes, candidate metrics, hypotheses, and provisional diagnoses may reside under `dikw/knowledge/` for organisation. Their explicit status remains specification, source note, proposed, or provisional. Directory location cannot promote them.
 
 Accept a knowledge item only when its evidence and executable checks support the stated claim. Record assumptions, scope, uncertainty, counterexamples, relevant code paths, and exact source revisions. Link null and contradictory results as well as supporting ones. Software tests can establish contract behaviour; they cannot establish a segmentation claim using synthetic fixtures alone.
 

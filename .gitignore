@@ -22,8 +22,8 @@ htmlcov/
 # Nested vendored SAM weights / checkout (local install)
 sam4tun/segment-anything/
 
-# Local data (inputs, metrics, run artifacts)
-data/
+# Local scan/run data at repo root (inputs, metrics, run artifacts)
+/data/
 *.npy
 *.pkl
 

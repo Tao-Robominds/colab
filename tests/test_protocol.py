@@ -28,10 +28,10 @@ def fixture(overlap=False, signal_change=None):
     source = file_digest(Path(hypotheses.__file__))
     first = HypothesisProgram("h1", "rsi4tun.hypotheses:depth_limits_k", source,
                               (("interval_half_width", 0.005), ("depth_to_k", 0.4), ("direct_phase_effect", 1.0)),
-                              "knowledge/hypotheses/fixture.md")
+                              "dikw/knowledge/hypotheses/fixture.md")
     second = HypothesisProgram("h2", "rsi4tun.hypotheses:phase_limits_k", source,
                                (("interval_half_width", 0.005), ("incidental_depth_effect", 0.4 if overlap else 0.0), ("phase_to_k", 1.0)),
-                               "knowledge/hypotheses/fixture.md")
+                               "dikw/knowledge/hypotheses/fixture.md")
     arms = (Arm("A", "commit-a", "tree-a", (("depth_repair_fraction", 0.25),)),
             Arm("B", "commit-b", "tree-b", (("phase_correction_turns", 0.05),)))
     arguments = {
@@ -49,7 +49,7 @@ def fixture(overlap=False, signal_change=None):
         "units": (("depth_valid_coverage__delta", "fraction"), ("k_phase_rms_turns__delta", "turns"),
                   ("boundary_symmetric_distance_fraction__delta", "circumference_fraction")),
         "manipulation_intervals": (("A", "depth_repair_fraction", 0.24, 0.26), ("B", "phase_correction_turns", 0.04, 0.06)),
-        "knowledge_ref": "knowledge/research_notes/protocol_fixture.md",
+        "knowledge_ref": "dikw/knowledge/research_notes/protocol_fixture.md",
     }
     interventions = {"A": {"depth_repair_fraction": 0.25}, "B": {"phase_correction_turns": 0.05}}
     return arguments, comparison, signals, interventions
@@ -155,12 +155,12 @@ class ProtocolTests(unittest.TestCase):
                         append_outcome(path, before_digest, self.plan, diagnosis=dict(original, **changes),
                                        run_ids=("run-a", "run-b"), code_commits=("commit-a", "commit-b"),
                                        treatment_decisions=(), next_action="development_review",
-                                       knowledge_ref="knowledge/research_notes/fixture.md")
+                                       knowledge_ref="dikw/knowledge/research_notes/fixture.md")
 
     def test_synthetic_results_cannot_promote_scientific_knowledge(self):
         request = {"claim_id": "claim", "claim_kind": "scoped_intervention_response", "scope_id": "scope",
-                   "assumptions_ref": "knowledge/assumptions.md", "counterexamples_ref": "knowledge/counterexamples.md",
-                   "code_commit": "commit", "knowledge_ref": "knowledge/claims/claim.md"}
+                   "assumptions_ref": "dikw/knowledge/assumptions.md", "counterexamples_ref": "dikw/knowledge/counterexamples.md",
+                   "code_commit": "commit", "knowledge_ref": "dikw/knowledge/claims/claim.md"}
         evidence_records = ({"synthetic": True, "learning_eligible": False, "status": "h1_supported"},)
         tests = ({"passed": True, "test_code_digest": digest("test"), "evidence_digest": digest(evidence_records[0]),
                   "claim_id": "claim", "code_commit": "commit"},)

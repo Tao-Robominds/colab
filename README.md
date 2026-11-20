@@ -1,1 +1,1 @@
-[Cursor instructions and architecture](knowledge/README.md)
+[Cursor instructions and architecture](dikw/knowledge/README.md)

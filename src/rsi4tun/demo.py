@@ -135,10 +135,10 @@ def run_demo(output: Path) -> dict:
     hypothesis_source = file_digest(Path(hypotheses.__file__))
     h1 = HypothesisProgram("depth_limits_k", "rsi4tun.hypotheses:depth_limits_k", hypothesis_source,
                            (("interval_half_width", 0.005), ("depth_to_k", 0.4), ("direct_phase_effect", 1.0)),
-                           "knowledge/hypotheses/depth_vs_phase.md")
+                           "dikw/knowledge/hypotheses/depth_vs_phase.md")
     h2 = HypothesisProgram("phase_limits_k", "rsi4tun.hypotheses:phase_limits_k", hypothesis_source,
                            (("interval_half_width", 0.005), ("incidental_depth_effect", 0.0), ("phase_to_k", 1.0)),
-                           "knowledge/hypotheses/depth_vs_phase.md")
+                           "dikw/knowledge/hypotheses/depth_vs_phase.md")
     arms = (Arm("A", revision_a.commit, revision_a.tree, (("depth_repair_fraction", 0.25),)),
             Arm("B", revision_b.commit, revision_b.tree, (("phase_correction_turns", 0.05),)))
     plan = build_plan(experiment_id="synthetic_depth_vs_phase", baseline_run_id=baseline_run.run_id,
@@ -151,7 +151,7 @@ def run_demo(output: Path) -> dict:
                              ("boundary_symmetric_distance_fraction__delta", "circumference_fraction")),
                       manipulation_intervals=(("A", "depth_repair_fraction", 0.24, 0.26),
                                               ("B", "phase_correction_turns", 0.04, 0.06)),
-                      knowledge_ref="knowledge/research_notes/synthetic_example.md", candidate_proxy=candidate_proxy)
+                      knowledge_ref="dikw/knowledge/research_notes/synthetic_example.md", candidate_proxy=candidate_proxy)
     arm_outputs = (output / "runs" / "arm_a", output / "runs" / "arm_b")
     commands = tuple((sys.executable, "-m", "rsi4tun", "fixture-run", "--case", str(case_path),
                       "--config", "configs/demo_runtime.json", "--output", str(path)) for path in arm_outputs)
@@ -177,7 +177,7 @@ def run_demo(output: Path) -> dict:
                                  treatment_decisions=({**asdict(decision_a), "activated": True},
                                                       {**asdict(decision_b), "activated": False}),
                                  next_action="submit_comparison_signal_and_response_to_development",
-                                 knowledge_ref="knowledge/research_notes/synthetic_example.md")
+                                 knowledge_ref="dikw/knowledge/research_notes/synthetic_example.md")
 
     _commit_configuration(repo, revision_a.commit, {"missing_columns": 6, "phase_correction_turns": 0.0, "depth_k_coupling": 0.4})
     rejected_revision = store.freeze(external_assets=external_assets)

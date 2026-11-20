@@ -40,6 +40,6 @@ Use a new output directory for each demonstration. The demo must label its recor
 
 Start a new empirical campaign. Do not ingest previous trials, learned coefficients, or earlier success narratives. Newly curated expert-reference artefacts are an explicit input to this architecture. Their provenance and applicability must be recorded; their existence does not establish deployment accuracy.
 
-All code files contain executable content without comments or docstrings. Put descriptive material, prompts, assumptions, and research notes in `knowledge/`. Put accepted decision principles in `wisdom/`. Machine-readable records link to those documents and to immutable evidence.
+All code files contain executable content without comments or docstrings. Put descriptive material, prompts, assumptions, and research notes in `dikw/knowledge/`. Put accepted decision principles in `dikw/wisdom/`. Machine-readable records link to those documents and to immutable evidence.
 
 Novelty remains the research purpose. For this task, final segmentation accuracy is the primary performance criterion. An observed plateau is a stopping event for an episode, not proof of an attainable ceiling.

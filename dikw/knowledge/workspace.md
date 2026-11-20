@@ -1,6 +1,6 @@
 # Workspace map
 
-All substantive prose is stored under `knowledge/` or `wisdom/`. The root `README.md` is an entry link.
+All substantive prose is stored under `dikw/`. The root `README.md` is an entry link.
 
 | Location | Contents |
 | --- | --- |
@@ -25,9 +25,12 @@ All substantive prose is stored under `knowledge/` or `wisdom/`. The root `READM
 | `data/development/` | Local development run outputs |
 | `data/deployment/` | Deployment run outputs |
 | `environment.lock.json` | Digests and substrate pins for the local environment |
-| `knowledge/` | Specifications, assumptions, hypotheses, prompts, provisional notes and verification |
-| `knowledge/environment.md` | Copy list, path rewrites, and GT isolation notes |
-| `wisdom/` | Acceptance rules for scoped principles; no accepted research wisdom is supplied |
+| `dikw/` | Data, information, knowledge, and wisdom layers |
+| `dikw/data/` | Experiment data summaries (filled later) |
+| `dikw/information/` | Organised experiment information (filled later) |
+| `dikw/knowledge/` | Specifications, assumptions, hypotheses, prompts, provisional notes and verification |
+| `dikw/knowledge/environment.md` | Copy list, path rewrites, and GT isolation notes |
+| `dikw/wisdom/` | Acceptance rules for scoped principles; no accepted research wisdom is supplied |
 | `tests/` | Meaningful evidence, validation, protocol, integrity and source-version tests |
 
 Create run archives outside the source repository. The demo produces separate `runs/`, `evidence/`, `evaluator/`, `rst/`, `archive/` and `development_private/` directories. Real deployment must not mount the private development directory.

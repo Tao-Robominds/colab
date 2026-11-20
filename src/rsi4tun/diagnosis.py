@@ -16,7 +16,7 @@ class HypothesisProgram:
     knowledge_ref: str
 
     def predict(self, baseline: Mapping, interventions: Mapping) -> dict:
-        if not self.knowledge_ref.startswith("knowledge/"):
+        if not self.knowledge_ref.startswith("dikw/knowledge/"):
             raise ValueError("hypothesis_description_location")
         module_name, function_name = self.entrypoint.split(":", 1)
         if module_name != "rsi4tun.hypotheses":
@@ -85,7 +85,7 @@ def build_plan(*, experiment_id: str, baseline_run_id: str, baseline_commit: str
         raise ValueError("candidate_proxy_not_derived_from_comparison")
     if len(hypotheses) != 2 or hypotheses[0].hypothesis_id == hypotheses[1].hypothesis_id:
         raise ValueError("two_distinct_hypotheses_required")
-    if not knowledge_ref.startswith("knowledge/"):
+    if not knowledge_ref.startswith("dikw/knowledge/"):
         raise ValueError("experiment_description_location")
     interventions = {arm.arm_id: dict(arm.intervention_vector) for arm in arms}
     predictions = tuple(hypothesis.predict(comparison["features"], interventions) for hypothesis in hypotheses)

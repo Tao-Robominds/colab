@@ -4,7 +4,7 @@
 
 Implement this architecture around the actual SAM4Tun code. Improve final 3D semantic mIoU. Start with K-centre localisation, while running the whole pipeline for every decision-relevant experiment. Start with new evidence and newly curated expert references. Do not import historical trials or earlier learned proxy state.
 
-Keep code free of comments and docstrings. Put descriptive instructions, prompts, assumptions, and findings in `knowledge/` or `wisdom/`. Do not convert untested notes into accepted knowledge merely because they occupy a directory named `knowledge`.
+Keep code free of comments and docstrings. Put descriptive instructions, prompts, assumptions, and findings under `dikw/`. Do not convert untested notes into accepted knowledge merely because they occupy `dikw/knowledge/`.
 
 Use one replaceable LLM researcher and explicit deterministic components. Prefer existing project functions over a new orchestration framework. The researcher returns structured executable proposals; controllers own evaluation and release decisions.
 
@@ -50,7 +50,7 @@ When a treatment passes, atomically advance the accepted release pointer to the 
 
 ### 6. Connect research memory
 
-Write raw observations to the evidence archive. Write structured comparisons, predictions, and outcomes as information. Keep explanatory notes in `knowledge/research_notes/`, labelled as proposed or provisional where appropriate.
+Write raw observations to the evidence archive. Write structured comparisons, predictions, and outcomes as information. Keep explanatory notes in `dikw/knowledge/research_notes/`, labelled as proposed or provisional where appropriate.
 
 Require a separate reviewable gate for accepted knowledge: executable checks, supporting and contradicting evidence, scope, assumptions, uncertainty, and code paths. Require a synthesis of accepted knowledge before creating an actionable wisdom item. Retrieve only records whose scope matches the current case. Preserve superseded versions.
 
@@ -74,10 +74,10 @@ If coverage is absent, request only the smallest representative labelled subset 
 | Rollback | Previous accepted code and its compatible identities are recoverable |
 | GT isolation | The deployment process cannot read protected GT, including through artefact paths |
 | Memory status | Synthetic records and unaccepted claims cannot be retrieved as tested knowledge |
-| Source hygiene | No code comments or docstrings; prose lives under `knowledge/` or `wisdom/` |
+| Source hygiene | No code comments or docstrings; prose lives under `dikw/knowledge/` or `dikw/wisdom/` |
 
 ## Researcher output discipline
 
-Require structured outputs. References must resolve to existing artefacts, source revisions, or explicitly proposed new code. A literature reference may motivate a measurement, but it cannot substitute for its local implementation or validation. Searches must not expose protected project data. Record citations and their scope in `knowledge/`; pin any external implementation before using it.
+Require structured outputs. References must resolve to existing artefacts, source revisions, or explicitly proposed new code. A literature reference may motivate a measurement, but it cannot substitute for its local implementation or validation. Searches must not expose protected project data. Record citations and their scope in `dikw/knowledge/`; pin any external implementation before using it.
 
 The investigator may act autonomously within the campaign budget and permitted changes. It must not silently alter a criterion after seeing the current result. If no admissible experiment remains, stop and record the uncertainty.

@@ -8,7 +8,7 @@ Start with the current complete run, its verified stage artefacts, the reference
 
 Identify a concrete measured discrepancy. Cite the artefact identity, comparison feature, executable extractor and code revision. Distinguish missing observations, representation loss, implementation failure, and a legitimate change in tunnel design. Do not turn an incompatible reference into an accuracy judgement.
 
-Propose at most a small registered set of candidate signals. Give each signal an executable definition, input artefacts, units, valid scope, missing-value rule, target rationale and a plausible way to improve it without improving final mIoU. Put this explanation in a versioned document under `knowledge/`. Return the document reference and machine-readable identifiers to the controller.
+Propose at most a small registered set of candidate signals. Give each signal an executable definition, input artefacts, units, valid scope, missing-value rule, target rationale and a plausible way to improve it without improving final mIoU. Put this explanation in a versioned document under `dikw/knowledge/`. Return the document reference and machine-readable identifiers to the controller.
 
 Candidate signals must exist in a verified comparison report before diagnosis. A new transformation requires new extractor code and a newly computed report. Do not propose an unmeasured name and treat it as an observation. A candidate signal is not a validated gate. Development must calibrate and validate any new acceptance proxy.
 
@@ -26,10 +26,10 @@ Commit complete proposed revisions. Seal predictions and comparison identities b
 
 Preserve failed runs, null results, rejected interventions and contradictions. State whether the result supports one response model, both, neither, or cannot be interpreted because the manipulation or measurement failed. A retained treatment does not establish its causal explanation.
 
-Write the machine-readable RST transition with references to a short explanatory note under `knowledge/research_notes/`. State the next decision the evidence changes. Stop at the predeclared budget or when no admissible next experiment remains. Do not call a plateau a proved ceiling.
+Write the machine-readable RST transition with references to a short explanatory note under `dikw/knowledge/research_notes/`. State the next decision the evidence changes. Stop at the predeclared budget or when no admissible next experiment remains. Do not call a plateau a proved ceiling.
 
 ## External knowledge
 
-Use curated primary sources and project design documentation first. Search public literature only to resolve a specific missing concept or measurement choice. Do not put protected scans, unpublished results or private source text into search queries. Record the exact source, supported statement, scope and retrieval date in `knowledge/sources/`.
+Use curated primary sources and project design documentation first. Search public literature only to resolve a specific missing concept or measurement choice. Do not put protected scans, unpublished results or private source text into search queries. Record the exact source, supported statement, scope and retrieval date in `dikw/knowledge/sources/`.
 
 A paper motivates a candidate. It does not validate that candidate for SAM4Tun. Local executable evidence and development GT determine its admissibility. Do not retrieve previous campaign trials into this fresh campaign.

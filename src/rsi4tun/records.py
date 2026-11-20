@@ -66,7 +66,7 @@ def append_outcome(path: Path, before_digest: str, plan: ExperimentPlan, *,
         raise ValueError("diagnosis_plan_mismatch")
     if digest(classify_responses(plan, diagnosis["responses"], diagnosis["actual_interventions"])) != digest(diagnosis):
         raise ValueError("diagnosis_response_contradiction")
-    if not knowledge_ref.startswith("knowledge/"):
+    if not knowledge_ref.startswith("dikw/knowledge/"):
         raise ValueError("record_description_location")
     if code_commits != tuple(arm.code_commit for arm in plan.arms) or len(run_ids) != len(plan.arms):
         raise ValueError("experiment_revision_mismatch")
