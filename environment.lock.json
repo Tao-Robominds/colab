@@ -184,64 +184,59 @@
   },
   "pipeline": [
     {
-      "bytes": 39678,
-      "path": "pipeline/1_unfolding.py",
-      "sha256": "aaa492eddf78f055d3b68da476352c997e0bd0f0f2d51e3f9af116e1982a994e"
+      "bytes": 36134,
+      "path": "sam4tun/1_unfolding.py",
+      "sha256": "7a41bf0a2a368e9f491fd1dfff4a69dd029e8155315fe0eb1f7c86b2f28788c8"
     },
     {
-      "bytes": 7004,
-      "path": "pipeline/2_denoising.py",
-      "sha256": "f4a614dc15589d9de8ad88a29baa973e2065d29043870b155ac535cd69c83e5d"
+      "bytes": 6900,
+      "path": "sam4tun/2_denoising.py",
+      "sha256": "2ab066bbcfe6b5cdb2d7cfbc004ba9928655d0e7fd53acfeec1fd06c8295d705"
     },
     {
-      "bytes": 26416,
-      "path": "pipeline/3_enhancing.py",
-      "sha256": "79dc300fedab117288dd69bf7a6d41887f6d5c8b0db09c8404dfcca587468cf9"
+      "bytes": 24162,
+      "path": "sam4tun/3_enhancing.py",
+      "sha256": "82a9de68795e526590304c420513b121ddb9efefc0f2b3361f0ae9653b526beb"
     },
     {
-      "bytes": 38241,
-      "path": "pipeline/4_detection.py",
-      "sha256": "11a53d28be3f4df31e856440d407eac17efee4330ceddce7da20f198f759e791"
+      "bytes": 32437,
+      "path": "sam4tun/4_detection.py",
+      "sha256": "19b69a901ee7a085acd18dd2ff102d02521c37aadf3c143ec64eb8636276d105"
     },
     {
-      "bytes": 40373,
-      "path": "pipeline/5_sam.py",
-      "sha256": "b61c9378de3e6bbb21ea1ecb4278a48e6eca1418abe121c689642dcbfe5eb08e"
+      "bytes": 38509,
+      "path": "sam4tun/5_sam.py",
+      "sha256": "eccc5c8f68aef98de9d9e929e69b9b65cb3fcf0fdce9718fc1bdd52cb890d92f"
     },
     {
-      "bytes": 15861,
-      "path": "pipeline/6_evaluation.py",
-      "sha256": "431e756ff7b3d4e2cd473f81b800e48109d9c014a4f5baa5e578ed3dc6e43b51"
+      "bytes": 15107,
+      "path": "sam4tun/6_evaluation.py",
+      "sha256": "07fc22fb416ded9d6e204caf2c6c2c82e6fac53b0149d83d3fae9afc5b69f9e1"
     },
     {
-      "bytes": 5499,
-      "path": "pipeline/family_io.py",
-      "sha256": "33def7534b9d8faae51d64bda30830a2a0f382d9a29153c112894a66c6104b55"
+      "bytes": 4055,
+      "path": "sam4tun/family_io.py",
+      "sha256": "ef81a44872e14f05699bf50dca11624b88f4a2403450f1ad43d468a902d73580"
     },
     {
-      "bytes": 1806,
-      "path": "pipeline/assume_fill.py",
-      "sha256": "a5ef5ccacb3b300f7c94b60b5e45567f56afb45b863ce0b15cd689b8881b5f19"
+      "bytes": 8779,
+      "path": "sam4tun/t12_geometry.py",
+      "sha256": "64f0ae041f68e74b0a6ff8ef62a082ef8ee94fb80c34ab73f53b11bb5a7d858f"
     },
     {
-      "bytes": 6377,
-      "path": "pipeline/centre_repairs.py",
-      "sha256": "fd24d84af9fe088e165bb03832d4b558da171ed77a60e6cdb3d0a9239ec7f713"
+      "bytes": 13699,
+      "path": "sam4tun/t3_geometry.py",
+      "sha256": "679f21519e2cb20648105cd42fb4b0823c8cee4216fd1e222729777701e56c15"
     },
     {
-      "bytes": 9223,
-      "path": "pipeline/t12_geometry.py",
-      "sha256": "49192e3c040eef865ae3f20d0a1f687d1de45b17440969cb4b2933a55263e992"
+      "bytes": 11739,
+      "path": "sam4tun/t45_geometry.py",
+      "sha256": "10a4d715c6ebe040bdcd020cf95ed0413a93ae639a6a85455e432b43d10c5d0a"
     },
     {
-      "bytes": 13782,
-      "path": "pipeline/t3_geometry.py",
-      "sha256": "ac356af503c9b7fececa6ddf6377c9a7659beef955c8244d38cb39f249c81822"
-    },
-    {
-      "bytes": 11827,
-      "path": "pipeline/t45_geometry.py",
-      "sha256": "6587443aeefa38da5029caa0578ba1018f83cbbed4440942e5b61c7cce7c8b95"
+      "bytes": 2053,
+      "path": "sam4tun/run_stages.py",
+      "sha256": "af7f54258a4a78d15c9480daf538f6f9770fbea1ac6202066650e9adf7b8f3f7"
     }
   ],
   "python": {
@@ -261,24 +256,24 @@
   },
   "sam4tun_helpers": [
     {
-      "bytes": 0,
+      "bytes": 1,
       "path": "sam4tun/helpers/__init__.py",
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
     },
     {
-      "bytes": 1889,
+      "bytes": 1835,
       "path": "sam4tun/helpers/design_blueprint.py",
-      "sha256": "fabb9bf3d9535405a814c34c55b019161d33a8d48c8c82b433b9821818173778"
+      "sha256": "d76002b57242a3e01f967f88b9c084673b1bf39daa91a1247ea600e1cfe3c363"
     },
     {
-      "bytes": 3664,
+      "bytes": 3388,
       "path": "sam4tun/helpers/pipeline_io.py",
-      "sha256": "665a4bfa1dbec24eecd0ce0a969a251b9a1a24e2eca8c0ea491561cd6fabdd7b"
+      "sha256": "2f3007d01c6f7b828f9a176bafca6c97e05b89212bf98574561046b637c06d4c"
     },
     {
-      "bytes": 389,
+      "bytes": 387,
       "path": "sam4tun/helpers/pipeline_state.py",
-      "sha256": "216cebda9a3d62a6d747b3846dd827925a8773a166aade1ec275bcfd3026c0a7"
+      "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
     }
   ],
   "segment_anything": {

@@ -1,57 +1,158 @@
 #!/usr/bin/env python3
+                                                                   
+                                                                                    
 import sys
 import os
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use("Agg")
+
+import json
+
+_SAM4TUN_DIR = os.path.dirname(os.path.abspath(__file__))
+_SAM_PKG = os.path.join(_SAM4TUN_DIR, "segment-anything")
+for _p in (_SAM4TUN_DIR, _SAM_PKG):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
+from helpers.pipeline_io import ensure_dir
+from helpers.pipeline_state import load_state, save_state
+
+import cv2
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-if _SCRIPT_DIR not in sys.path:
-    sys.path.insert(0, _SCRIPT_DIR)
-from helpers.pipeline_io import ensure_dir
-from helpers.pipeline_state import load_state, save_state
+
 tunnel_id = sys.argv[1]
+
+
+import family_io
+
+params, param_file, family_mode = family_io.load_stage_params("detecting")
+print(f"[unified] stage=detecting family_mode={family_mode}")
+
+expected_keys = [
+    "binary_threshold", "morphological_kernel_size", "dilation_iterations",
+    "hough_threshold_oblique", "minLineLength_oblique", "maxLineGap_oblique",
+    "hough_threshold_horizontal", "minLineLength_horizontal", "maxLineGap_horizontal",
+    "hough_threshold_vertical", "angle_range_oblique_positive", "angle_range_oblique_negative",
+    "merge_distance", "ring_spacing_constant", "resolution",
+]
+for key in expected_keys:
+    if key not in params:
+        sys.exit(f"Missing required parameter '{key}' in {param_file}")
+binary_threshold = params["binary_threshold"]
+morphological_kernel_size = params["morphological_kernel_size"]
+dilation_iterations = params["dilation_iterations"]
+hough_threshold_oblique = params["hough_threshold_oblique"]
+minLineLength_oblique = params["minLineLength_oblique"]
+maxLineGap_oblique = params["maxLineGap_oblique"]
+hough_threshold_horizontal = params["hough_threshold_horizontal"]
+minLineLength_horizontal = params["minLineLength_horizontal"]
+maxLineGap_horizontal = params["maxLineGap_horizontal"]
+hough_threshold_vertical = params["hough_threshold_vertical"]
+angle_range_oblique_positive = params["angle_range_oblique_positive"]
+angle_range_oblique_negative = params["angle_range_oblique_negative"]
+merge_distance = params["merge_distance"]
+ring_spacing_constant = params["ring_spacing_constant"]
+resolution = params["resolution"]
+K_height = float(params.get("K_height", 1079.92))
+AB_height = float(params.get("AB_height", 3239.77))
+pattern_tolerance = float(params.get("pattern_tolerance", 50))
+vertical_rho_mode = params.get("vertical_rho_mode", "max")
+vertical_rho_spacing_mm = float(params.get("vertical_rho_spacing_mm", 1200))
+vertical_rho_min_factor = float(params.get("vertical_rho_min_factor", 0.0))
+vertical_rho_max_factor = float(params.get("vertical_rho_max_factor", 5.0))
+prompt_logic = params.get("prompt_logic", "t12_pattern")
+                                                                        
+                                                                   
+prompt_extrapolate_px = int(params.get("prompt_extrapolate_px", 0))
+key_pair_max_sep_px = float(params.get("key_pair_max_sep_px", 2609))
+uniform_k_snap = bool(params.get("uniform_k_snap", False))
+_k_row_raw = params.get("k_row_pattern", [1123.0, 1553.0])
+k_row_pattern = [float(v) for v in _k_row_raw]
+k_row_tolerance = float(params.get("k_row_tolerance", 200.0))
+k_row_action = str(params.get("k_row_action", "snap")).lower()
+if k_row_action not in ("snap", "fail", "warn"):
+    sys.exit(f"Invalid k_row_action={k_row_action!r}; expected snap|fail|warn")
+print(
+    f"unified detecting: K/AB={K_height}/{AB_height}, prompt_logic={prompt_logic}, "
+    f"vertical_rho_mode={vertical_rho_mode}, spacing_mm={vertical_rho_spacing_mm}, "
+    f"uniform_k_snap={uniform_k_snap}, "
+    f"k_row_action={k_row_action}, k_row_tolerance={k_row_tolerance}, "
+    f"prompt_extrapolate_px={prompt_extrapolate_px}, "
+    f"key_pair_max_sep_px={key_pair_max_sep_px}"
+)
+
 paths = ensure_dir(tunnel_id)
-state = load_state(paths['state'])
-df_point_cloud = state['df_point_cloud']
-df_enhance_segment = state['df_enhance_segment']
-df_enhance_joint = state['df_enhance_joint']
-ring_count = state['ring_count']
-resolution = state.get('resolution', 0.005)
-depth_map_outlier = state['depth_map_outlier']
-import cv2
+state = load_state(paths["state"])
+df_point_cloud = state["df_point_cloud"]
+df_enhance_segment = state["df_enhance_segment"]
+df_enhance_joint = state["df_enhance_joint"]
+ring_count = state["ring_count"]
+depth_map_outlier = state["depth_map_outlier"]
+
+        
 binary_map = np.where(np.isnan(depth_map_outlier), 0, 255).astype(np.uint8)
-ret, binary_image = cv2.threshold(binary_map, 127, 255, cv2.THRESH_BINARY)
-kernel = np.ones((3, 3), np.uint8)
-dilated_edges = cv2.dilate(binary_image, kernel, iterations=1)
+
+ret, binary_image = cv2.threshold(binary_map, binary_threshold, 255, cv2.THRESH_BINARY)
+
+kernel = np.ones(morphological_kernel_size, np.uint8)
+
+dilated_edges = cv2.dilate(binary_image, kernel, iterations=dilation_iterations)
+
+        
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+
+                          
 L, W = binary_map.shape
 
-def _hough_p_as_nx1x4(lines):
-    if lines is None:
-        return None
-    arr = np.asarray(lines)
-    if arr.ndim == 2 and arr.shape[1] == 4:
-        return arr.reshape(-1, 1, 4)
-    return arr
-lines_oblique = _hough_p_as_nx1x4(cv2.HoughLinesP(dilated_edges, 1, np.pi / 180, 50, minLineLength=100, maxLineGap=40))
-lines_horizontal = _hough_p_as_nx1x4(cv2.HoughLinesP(dilated_edges, 1, np.pi / 180, 50, minLineLength=100, maxLineGap=10))
-lines_vertical = cv2.HoughLines(dilated_edges, 1, np.pi / 180, 500)
-lines_vertical_all = lines_vertical
+                                           
+lines_oblique = cv2.HoughLinesP(dilated_edges, 1, np.pi / 180, hough_threshold_oblique, minLineLength=minLineLength_oblique, maxLineGap=maxLineGap_oblique)
+
+                                                  
+lines_horizontal = cv2.HoughLinesP(dilated_edges, 1, np.pi / 180, hough_threshold_horizontal, minLineLength=minLineLength_horizontal, maxLineGap=maxLineGap_horizontal)
+
+                         
+lines_vertical = cv2.HoughLines(dilated_edges, 1, np.pi / 180, hough_threshold_vertical)
 if lines_vertical is not None:
-    lines_vertical_filtered = lines_vertical[lines_vertical[:, 0, 0] <= 5 * 1200 / (resolution * 1000)]
-    if len(lines_vertical_filtered) > 0:
-        lines_vertical = lines_vertical_filtered
+    rho = lines_vertical[:, 0, 0]
+    scale = vertical_rho_spacing_mm / (resolution * 1000)
+    if vertical_rho_mode == "w2_offset_band":
+                                                                     
+        lo = W / 2 + vertical_rho_min_factor * scale
+        hi = W / 2 + vertical_rho_max_factor * scale
+        filtered = lines_vertical[(rho >= lo) & (rho <= hi)]
+        print(f"Vertical rho W/2-offset band [{lo:.1f}, {hi:.1f}] -> {len(filtered)} lines")
+        if len(filtered) == 0:
+            print("Band empty on this span; keeping unfiltered vertical Hough lines")
+        else:
+            lines_vertical = filtered
+    elif vertical_rho_mode == "band":
+        lo = vertical_rho_min_factor * scale
+        hi = vertical_rho_max_factor * scale
+        filtered = lines_vertical[(rho >= lo) & (rho <= hi)]
+        print(f"Vertical rho band filter [{lo:.1f}, {hi:.1f}] -> {len(filtered)} lines")
+        if len(filtered) == 0:
+            print("Band empty on this span; keeping unfiltered vertical Hough lines")
+        else:
+            lines_vertical = filtered
+    else:
+        lines_vertical = lines_vertical[rho <= (vertical_rho_max_factor * scale)]
+
+                      
 output_image = cv2.cvtColor(dilated_edges, cv2.COLOR_GRAY2BGR)
-color_angle1 = (255, 0, 0)
-color_angle2 = (0, 255, 0)
-color_horizontal = (0, 0, 255)
-color_vertical = (255, 165, 0)
-color_mid_lines = (255, 0, 255)
-line_thickness = 3
+
+               
+color_angle1 = (255, 0, 0)                                
+color_angle2 = (0, 255, 0)                                  
+color_horizontal = (0, 0, 255)                             
+color_vertical = (255, 165, 0)                             
+color_mid_lines = (255, 0, 255)                              
+line_thickness = 3                  
+
+                                                                                    
 joint_oblique_positive = []
 joint_oblique_negtive = []
 joint_horizontal = []
@@ -59,169 +160,206 @@ if lines_oblique is not None:
     for line in lines_oblique:
         x1, y1, x2, y2 = line[0]
         x1, x2, y1, y2 = (x2, x1, y2, y1) if x1 > x2 else (x1, x2, y1, y2)
-        angle = np.degrees(np.arctan2(-(y2 - y1), x2 - x1))
-        if 6 <= angle <= 9:
+        angle = np.degrees(np.arctan2(-(y2 - y1), x2 - x1))                                                                           
+
+        if angle_range_oblique_positive[0] <= angle <= angle_range_oblique_positive[1]:
             joint_oblique_positive.append(line)
             cv2.line(output_image, (x1, y1), (x2, y2), color_angle1, line_thickness)
-        elif -9 <= angle <= -6:
+
+        elif angle_range_oblique_negative[0] <= angle <= angle_range_oblique_negative[1]:
             joint_oblique_negtive.append(line)
             cv2.line(output_image, (x1, y1), (x2, y2), color_angle2, line_thickness)
+
+                                  
 if lines_horizontal is not None:
     for line in lines_horizontal:
         x1, y1, x2, y2 = line[0]
         angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
+                                    
         if -1 <= angle <= 1:
             joint_horizontal.append(line)
             cv2.line(output_image, (x1, y1), (x2, y2), color_horizontal, line_thickness)
+
+                            
 merged_lines = []
 all_mid_lines = []
-threshold_distance = 3
+threshold_distance = merge_distance          
+
 if lines_vertical is not None:
-    lines_vertical = lines_vertical[:, 0]
+    lines_vertical = lines_vertical[:, 0]                       
+
+                                              
     for i, (rho1, theta1) in enumerate(lines_vertical):
-        if -0.5 * np.pi / 180 <= abs(theta1) <= 0.5 * np.pi / 180:
-            x1, y1 = (rho1 * np.cos(theta1), rho1 * np.sin(theta1))
+        if -0.5 * np.pi / 180 <= abs(theta1) <= 0.5 * np.pi / 180:                                
+            x1, y1 = rho1 * np.cos(theta1), rho1 * np.sin(theta1)
             is_merged = False
+            
+                                                     
             for j, (rho2, theta2) in enumerate(merged_lines):
-                x2, y2 = (rho2 * np.cos(theta2), rho2 * np.sin(theta2))
-                if np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2) < threshold_distance:
+                x2, y2 = rho2 * np.cos(theta2), rho2 * np.sin(theta2)
+                if np.sqrt((x1 - x2)**2 + (y1 - y2)**2) < threshold_distance:
+                                 
                     new_rho = (rho1 + rho2) / 2
                     new_theta = (theta1 + theta2) / 2
                     merged_lines[j] = (new_rho, new_theta)
                     is_merged = True
                     break
+            
             if not is_merged:
                 merged_lines.append((rho1, theta1))
+                
+                              
     merged_lines.sort(key=lambda line: line[0])
+
+                                
     for rho, theta in merged_lines:
         a = np.cos(theta)
         b = np.sin(theta)
         x0 = a * rho
         y0 = b * rho
-        x1 = int(x0 + 2677 * -b)
-        y1 = int(y0 + 2677 * a)
-        x2 = int(x0 - 2677 * -b)
-        y2 = int(y0 - 2677 * a)
+        x1 = int(x0 + 2677 * (-b))
+        y1 = int(y0 + 2677 * (a))
+        x2 = int(x0 - 2677 * (-b))
+        y2 = int(y0 - 2677 * (a))
         cv2.line(output_image, (x1, y1), (x2, y2), color_vertical, line_thickness)
+
+                                                              
     mid_lines = []
     num_lines = len(merged_lines)
     for i in range(num_lines - 1):
         rho1, theta1 = merged_lines[i]
         rho2, theta2 = merged_lines[i + 1]
+                            
         new_rho = (rho1 + rho2) / 2
         new_theta = (theta1 + theta2) / 2
         mid_lines.append((new_rho, new_theta))
+        
+                             
         a = np.cos(new_theta)
         b = np.sin(new_theta)
         x0 = a * new_rho
         y0 = b * new_rho
-        x1 = int(x0 + L * -b)
-        y1 = int(y0 + L * a)
-        x2 = int(x0 - L * -b)
-        y2 = int(y0 - L * a)
+        x1 = int(x0 + L * (-b))
+        y1 = int(y0 + L * (a))
+        x2 = int(x0 - L * (-b))
+        y2 = int(y0 - L * (a))
         cv2.line(output_image, (x1, y1), (x2, y2), color_mid_lines, line_thickness)
+
+                                                       
     distances = []
     for i in range(len(mid_lines) - 1):
         rho1, theta1 = mid_lines[i]
         rho2, theta2 = mid_lines[i + 1]
-        x1, y1 = (rho1 * np.cos(theta1), rho1 * np.sin(theta1))
-        x2, y2 = (rho2 * np.cos(theta2), rho2 * np.sin(theta2))
-        distance = np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+        x1, y1 = rho1 * np.cos(theta1), rho1 * np.sin(theta1)
+        x2, y2 = rho2 * np.cos(theta2), rho2 * np.sin(theta2)
+        distance = np.sqrt((x1 - x2)**2 + (y1 - y2)**2)
         distances.append(distance)
+
     avg_distance_detected = np.mean(distances) if distances else 0
-    avg_distance_designed = W / ring_count
-    if np.abs(avg_distance_detected - 1.2 / resolution) <= np.abs(avg_distance_designed - 1.2 / resolution):
+    
+    avg_distance_designed = W/ring_count
+    
+                                                                                       
+    if bool(params.get("prefer_designed_spacing", False)):
+        avg_distance = avg_distance_designed
+    elif np.abs(avg_distance_detected - (ring_spacing_constant / resolution)) <= np.abs(avg_distance_designed - (ring_spacing_constant / resolution)):
         avg_distance = avg_distance_detected
     else:
         avg_distance = avg_distance_designed
+
+                                     
     all_mid_lines = mid_lines.copy()
+
+                                                                                               
     if mid_lines:
+                                
         leftmost_rho, leftmost_theta = mid_lines[0]
         a = np.cos(leftmost_theta)
         b = np.sin(leftmost_theta)
         x0 = a * leftmost_rho
         y0 = b * leftmost_rho
+    
+                                         
         while x0 >= 0:
-            x1 = int(x0 + L * -b)
-            y1 = int(y0 + L * a)
-            x2 = int(x0 - L * -b)
-            y2 = int(y0 - L * a)
+            x1 = int(x0 + L * (-b))
+            y1 = int(y0 + L * (a))
+            x2 = int(x0 - L * (-b))
+            y2 = int(y0 - L * (a))
             cv2.line(output_image, (x1, y1), (x2, y2), color_mid_lines, line_thickness)
-            all_mid_lines.append((x0, leftmost_theta))
+            all_mid_lines.append((x0, leftmost_theta))                                 
             x0 -= avg_distance
+    
+                                 
         rightmost_rho, rightmost_theta = mid_lines[-1]
         a = np.cos(rightmost_theta)
         b = np.sin(rightmost_theta)
         x0 = a * rightmost_rho
         y0 = b * rightmost_rho
+    
+                                          
         while x0 <= output_image.shape[1]:
-            x1 = int(x0 + L * -b)
-            y1 = int(y0 + L * a)
-            x2 = int(x0 - L * -b)
-            y2 = int(y0 - L * a)
+            x1 = int(x0 + L * (-b))
+            y1 = int(y0 + L * (a))
+            x2 = int(x0 - L * (-b))
+            y2 = int(y0 - L * (a))
             cv2.line(output_image, (x1, y1), (x2, y2), color_mid_lines, line_thickness)
-            all_mid_lines.append((x0, rightmost_theta))
+            all_mid_lines.append((x0, rightmost_theta))                                 
             x0 += avg_distance
-all_mid_lines = sorted(list(set(all_mid_lines)), key=lambda line: line[0])
-if (lines_vertical is None or len(all_mid_lines) == 0) and lines_vertical_all is not None:
-    lines_vertical = lines_vertical_all[:, 0]
-    merged_lines = []
-    all_mid_lines = []
-    for rho1, theta1 in lines_vertical:
-        if -0.5 * np.pi / 180 <= abs(theta1) <= 0.5 * np.pi / 180:
-            merged_lines.append((rho1, theta1))
-    merged_lines.sort(key=lambda line: line[0])
-    mid_lines = []
-    for i in range(len(merged_lines) - 1):
-        rho1, theta1 = merged_lines[i]
-        rho2, theta2 = merged_lines[i + 1]
-        mid_lines.append(((rho1 + rho2) / 2, (theta1 + theta2) / 2))
-    avg_distance = W / ring_count
-    all_mid_lines = mid_lines.copy()
-    if mid_lines:
-        leftmost_rho, leftmost_theta = mid_lines[0]
-        a, b = (np.cos(leftmost_theta), np.sin(leftmost_theta))
-        x0 = a * leftmost_rho
-        while x0 >= 0:
-            all_mid_lines.append((x0, leftmost_theta))
-            x0 -= avg_distance
-        rightmost_rho, rightmost_theta = mid_lines[-1]
-        a, b = (np.cos(rightmost_theta), np.sin(rightmost_theta))
-        x0 = a * rightmost_rho
-        while x0 <= W:
-            all_mid_lines.append((x0, rightmost_theta))
-            x0 += avg_distance
+
     all_mid_lines = sorted(list(set(all_mid_lines)), key=lambda line: line[0])
-if len(all_mid_lines) > 0:
-    targets = [(i + 0.5) * W / ring_count for i in range(ring_count)]
-    remaining = sorted(list(set(all_mid_lines)), key=lambda line: line[0])
-    selected = []
-    for tx in targets:
-        if not remaining:
-            break
-        best = min(remaining, key=lambda line: abs(line[0] - tx))
-        selected.append(best)
-        remaining.remove(best)
-    all_mid_lines = selected
+
+                                                                           
+_n_vertical_hough = 0 if lines_vertical is None else int(len(lines_vertical))
+_vertical_fallback = False
+if lines_vertical is None or len(all_mid_lines) == 0:
+    _vertical_fallback = True
+    print("No vertical lines detected. Using fallback method: Creating evenly spaced vertical lines based on ring count.")
+    all_mid_lines = []
+    
+                                                                               
+    block_width = W / ring_count
+
+    for i in range(ring_count):
+                                                   
+        x_pos = (i + 0.5) * block_width
+                                                                                    
+                                                          
+        all_mid_lines.append((x_pos, 0))
+        
+                                                                      
+        x1, y1 = int(x_pos), 0
+        x2, y2 = int(x_pos), L
+        cv2.line(output_image, (x1, y1), (x2, y2), color_mid_lines, line_thickness)
+
+    print(f"Generated {len(all_mid_lines)} synthetic vertical lines at ring centers")
+
+print(
+    f"[dd_counts] n_oblique_pos={len(joint_oblique_positive)} "
+    f"n_oblique_neg={len(joint_oblique_negtive)} "
+    f"n_horizontal={len(joint_horizontal)} "
+    f"n_vertical={_n_vertical_hough} "
+    f"vertical_fallback={int(_vertical_fallback)}"
+)
+
+                    
 plt.figure(figsize=(12, 12))
 plt.imshow(output_image)
-plt.axis('off')
-plt.savefig(paths['detected_lines'], dpi=150, bbox_inches='tight')
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+plt.savefig(paths["detected_lines"], dpi=150, bbox_inches='tight')
 
-def line_segment_vertical_intersection(vertical_x, segment):
+def line_segment_vertical_intersection(vertical_x, segment, extrapolate_px=0):
+
     x1, y1, x2, y2 = segment
     if x1 == x2:
         return None
-    if min(x1, x2) <= vertical_x <= max(x1, x2):
+    pad = max(0, int(extrapolate_px))
+    if min(x1, x2) - pad <= vertical_x <= max(x1, x2) + pad:
         t = (vertical_x - x1) / (x2 - x1)
         intersect_y = y1 + t * (y2 - y1)
         return (vertical_x, intersect_y)
     return None
 
 def merge_close_points(points, threshold=6):
+
     points = np.array(points)
     if len(points) == 0:
         return np.array([])
@@ -243,231 +381,314 @@ def check_distance_pattern(points, k, ab, tolerance=10):
     for i in range(len(points) - 1):
         for j in range(i + 1, len(points)):
             distance = np.linalg.norm(np.array(points[i]) - np.array(points[j]))
-            if any((abs(distance - (k + m * ab)) < tolerance for m in [2, 4])):
+            if any(abs(distance - (k + m * ab)) < tolerance for m in [2, 4]):
                 return compute_midpoint(points[i], points[j])
     return None
+
 vertical_lines = all_mid_lines
 horizontal_lines = joint_horizontal
 positive_slope_lines = joint_oblique_positive
 negative_slope_lines = joint_oblique_negtive
 adjusted_points = []
-K_height_pixel = 1079.92 / (1000 * resolution)
-AB_height_pixel = 3239.77 / (1000 * resolution)
+K_height_pixel = K_height / (1000 * resolution)
+AB_height_pixel = AB_height / (1000 * resolution)
 
-def _oblique_intersections(vertical_x):
-    intersections_with_positive_slope = []
-    intersections_with_negative_slope = []
-    for segment in positive_slope_lines:
-        inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-        if inter_point:
-            intersections_with_positive_slope.append(inter_point)
-    for segment in negative_slope_lines:
-        inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-        if inter_point:
-            intersections_with_negative_slope.append(inter_point)
-    return (merge_close_points(intersections_with_positive_slope), merge_close_points(intersections_with_negative_slope))
-
-def _all_midpoint_candidates(merge_positive, merge_negative):
-    candidates = []
-    for p in merge_positive:
-        for n in merge_negative:
-            candidates.append(compute_midpoint(p, n))
-    return candidates
-
-def _choose_midpoint_neighbor_band(candidates, neighbor_ys, default):
-    if not candidates:
-        return default
-    if not neighbor_ys:
-        return default
-    best = default
-    best_dist = None
-    for mid in candidates:
-        dist = min((abs(mid[1] - y) for y in neighbor_ys))
-        if best_dist is None or dist < best_dist:
-            best_dist = dist
-            best = mid
-    return best
-for vertical_x, _ in vertical_lines:
-    intersections_with_horizontal = []
-    merge_positive, merge_negative = _oblique_intersections(vertical_x)
-    if len(merge_positive) > 0 and len(merge_negative) > 0:
-        midpoint = compute_midpoint(merge_positive[0], merge_negative[0])
-        adjusted_points.append(('midpoint', midpoint))
-    elif len(merge_positive) > 0:
-        point = merge_positive[0]
-        adjusted_points.append(('positive_slope', (point[0], point[1] + 0.5 * K_height_pixel)))
-    elif len(merge_negative) > 0:
-        point = merge_negative[0]
-        adjusted_points.append(('negative_slope', (point[0], point[1] - 0.5 * K_height_pixel)))
-    else:
-        for segment in horizontal_lines:
-            inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-            if inter_point:
-                intersections_with_horizontal.append(inter_point)
-        merge_horizontal = merge_close_points(intersections_with_horizontal)
-        pattern_midpoint = check_distance_pattern(merge_horizontal, K_height_pixel, AB_height_pixel, tolerance=50)
-        if pattern_midpoint:
-            adjusted_points.append(('horizontal', pattern_midpoint))
-        else:
-            if (os.environ.get('PROXY4TUN_ASSUME_FALLBACK') or '1').strip() == '0':
-                continue
-            assumed_y = None
-            if adjusted_points:
-                last_point_y = adjusted_points[-1][1][1]
-                if 1035 <= last_point_y <= 1265:
-                    assumed_y = last_point_y + 431.87
-                elif 1422 <= last_point_y <= 1738:
-                    assumed_y = last_point_y - 431.87
-                elif len(adjusted_points) > 1:
-                    second_last_point_y = adjusted_points[-2][1][1]
-                    if 1035 <= second_last_point_y <= 1265:
-                        assumed_y = second_last_point_y
-                    elif 1422 <= second_last_point_y <= 1738:
-                        assumed_y = second_last_point_y
-                    else:
-                        assumed_y = None
-                else:
-                    assumed_y = None
-            else:
-                ring_idx = len(adjusted_points)
-                assumed_y = 1123.0 if ring_idx % 2 == 0 else 1553.0
-            if assumed_y is None:
-                ring_idx = len(adjusted_points)
-                assumed_y = 1123.0 if ring_idx % 2 == 0 else 1553.0
-            adjusted_points.append(('assume', (vertical_x, assumed_y)))
-_pairing_mode = (os.environ.get('PROXY4TUN_PAIRING_MODE') or '').strip()
-if _pairing_mode in ('neighbor_band', 'neighbor_band_propagate', 'median_slope_band'):
-    baseline = list(adjusted_points)
-    slope_ys = [coord[1] for label, coord in baseline if label in ('positive_slope', 'negative_slope')]
-    slope_median = float(np.median(slope_ys)) if slope_ys else None
-    rebuilt = []
-    for idx, (label, coord) in enumerate(baseline):
-        if label != 'midpoint':
-            rebuilt.append((label, coord))
-            continue
-        vertical_x = coord[0]
-        merge_positive, merge_negative = _oblique_intersections(vertical_x)
-        candidates = _all_midpoint_candidates(merge_positive, merge_negative)
-        if _pairing_mode == 'median_slope_band':
-            bands = [slope_median] if slope_median is not None else []
-            chosen = _choose_midpoint_neighbor_band(candidates, bands, coord)
-        else:
-            neighbor_ys = []
-            for j in (idx - 1, idx + 1):
-                if j < 0 or j >= len(baseline):
-                    continue
-                if _pairing_mode == 'neighbor_band_propagate' and j < idx:
-                    source = rebuilt
-                    src_idx = j
-                else:
-                    source = baseline
-                    src_idx = j
-                if source[src_idx][0] != 'assume':
-                    neighbor_ys.append(source[src_idx][1][1])
-            chosen = _choose_midpoint_neighbor_band(candidates, neighbor_ys, coord)
-        rebuilt.append(('midpoint', chosen))
-    adjusted_points = rebuilt
-    extra = ''
-    if _pairing_mode == 'median_slope_band':
-        extra = f'; slope_median_Y={slope_median}'
-    print(f'{_pairing_mode}: midpoint candidates re-scored; band prior applied where available{extra}')
-if (os.environ.get('PROXY4TUN_ASSUME_REPAIR') or '').strip() == 'farthest_nonassume_band':
-    baseline = list(adjusted_points)
-    nonassume_ys = [coord[1] for label, coord in baseline if label in ('positive_slope', 'negative_slope', 'midpoint', 'horizontal')]
-    repaired = []
-    n_repaired = 0
-    for idx, (label, coord) in enumerate(baseline):
-        if label != 'assume' or not nonassume_ys:
-            repaired.append((label, coord))
-            continue
-        left = baseline[idx - 1] if idx > 0 else None
-        right = baseline[idx + 1] if idx + 1 < len(baseline) else None
-        if left is None or right is None or left[0] != 'assume' or (right[0] != 'assume'):
-            repaired.append((label, coord))
-            continue
-        neighbor_mean = 0.5 * (left[1][1] + right[1][1])
-        chosen_y = max(nonassume_ys, key=lambda y: abs(y - neighbor_mean))
-        repaired.append(('assume', (coord[0], chosen_y)))
-        n_repaired += 1
-    adjusted_points = repaired
-    print(f'assume_repair=farthest_nonassume_band: repaired {n_repaired} sandwiched assume rings using {len(nonassume_ys)} non-assume Y values')
-_slope_repair = (os.environ.get('PROXY4TUN_SLOPE_REPAIR') or '').strip()
-_do_horizontal = _slope_repair in ('horizontal_if_pattern', 'horizontal_then_other_median', 'horizontal_then_lone_nonassume', 'horizontal_then_other_median_then_lone')
-_do_other_median = _slope_repair in ('other_slope_median', 'horizontal_then_other_median', 'horizontal_then_other_median_then_lone')
-_do_lone_nonassume = _slope_repair in ('lone_slope_to_nonassume', 'horizontal_then_lone_nonassume', 'horizontal_then_other_median_then_lone')
-if _do_horizontal:
-    baseline = list(adjusted_points)
-    repaired = []
-    n_repaired = 0
-    for label, coord in baseline:
-        if label not in ('positive_slope', 'negative_slope'):
-            repaired.append((label, coord))
-            continue
-        vertical_x = coord[0]
+if prompt_logic == "t3_inherit":
+    for vertical_x, _ in vertical_lines:
+        intersections_with_positive_slope = []
+        intersections_with_negative_slope = []
         intersections_with_horizontal = []
-        for segment in horizontal_lines:
+        for segment in positive_slope_lines:
             inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
             if inter_point:
-                intersections_with_horizontal.append(inter_point)
-        merge_horizontal = merge_close_points(intersections_with_horizontal)
-        pattern_midpoint = check_distance_pattern(merge_horizontal, K_height_pixel, AB_height_pixel, tolerance=50)
-        if pattern_midpoint:
-            repaired.append(('horizontal', pattern_midpoint))
-            n_repaired += 1
+                intersections_with_positive_slope.append(inter_point)
+        for segment in negative_slope_lines:
+            inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
+            if inter_point:
+                intersections_with_negative_slope.append(inter_point)
+        merge_positive = merge_close_points(intersections_with_positive_slope)
+        merge_negative = merge_close_points(intersections_with_negative_slope)
+        current_type = None
+        current_y = None
+        if len(merge_positive) > 0 and len(merge_negative) > 0:
+            midpoint = compute_midpoint(merge_positive[0], merge_negative[0])
+            current_y = midpoint[1]
+            current_type = 'midpoint'
+        elif len(merge_positive) > 0:
+            point = merge_positive[0]
+                                                           
+            current_y = point[1] - 0.5 * K_height_pixel
+            current_type = 'positive_slope'
+        elif len(merge_negative) > 0:
+            point = merge_negative[0]
+                                                           
+            current_y = point[1] + 0.5 * K_height_pixel
+            current_type = 'negative_slope'
         else:
-            repaired.append((label, coord))
-    adjusted_points = repaired
-    print(f'slope_repair=horizontal_if_pattern: replaced {n_repaired} slope rings with horizontal pattern midpoints')
-if _do_other_median:
-    baseline = list(adjusted_points)
-    slope_idxs = [i for i, (label, _) in enumerate(baseline) if label in ('positive_slope', 'negative_slope')]
-    repaired = list(baseline)
-    n_repaired = 0
-    threshold_px = 600.0
-    if len(slope_idxs) >= 2:
-        for i in slope_idxs:
-            label, coord = baseline[i]
-            other_ys = [baseline[j][1][1] for j in slope_idxs if j != i]
-            other_median = float(np.median(other_ys))
-            if abs(coord[1] - other_median) > threshold_px:
-                repaired[i] = (label, (coord[0], other_median))
-                n_repaired += 1
-    adjusted_points = repaired
-    print(f'slope_repair=other_slope_median: repaired {n_repaired} slope rings (threshold_px={threshold_px})')
-if _do_lone_nonassume:
-    baseline = list(adjusted_points)
-    slope_idxs = [i for i, (label, _) in enumerate(baseline) if label in ('positive_slope', 'negative_slope')]
-    repaired = list(baseline)
-    n_repaired = 0
-    if len(slope_idxs) == 1:
-        i = slope_idxs[0]
-        label, coord = baseline[i]
-        nonassume_ys = [c[1] for lab, c in baseline if lab in ('midpoint', 'horizontal')]
-        if nonassume_ys:
-            left = baseline[i - 1] if i > 0 else None
-            right = baseline[i + 1] if i + 1 < len(baseline) else None
-            if left is not None and right is not None:
-                neighbor_mean = 0.5 * (left[1][1] + right[1][1])
-                chosen_y = max(nonassume_ys, key=lambda y: abs(y - neighbor_mean))
+            for segment in horizontal_lines:
+                inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
+                if inter_point:
+                    intersections_with_horizontal.append(inter_point)
+            merge_horizontal = merge_close_points(intersections_with_horizontal)
+            if len(merge_horizontal) > 0:
+                min_y = min(merge_horizontal, key=lambda x: x[1])[1]
+                max_y = max(merge_horizontal, key=lambda x: x[1])[1]
+                current_y = (min_y + max_y) / 2
+                current_type = 'horizontal'
+            elif adjusted_points:
+                current_y = adjusted_points[-1][1][1]
+                current_type = 'assume'
             else:
-                chosen_y = float(np.median(nonassume_ys))
-            repaired[i] = ('midpoint', (coord[0], chosen_y))
-            n_repaired = 1
-    adjusted_points = repaired
-    print(f'slope_repair=lone_slope_to_nonassume: repaired {n_repaired} lone slope rings using non-assume Y band')
+                current_y = L * 0.5
+                current_type = 'assume'
+                print(f"Warning: no starting detection at x={vertical_x}; using image mid Y")
+        if adjusted_points and current_type != 'assume':
+            last_point_y = adjusted_points[-1][1][1]
+            if abs(current_y - last_point_y) / max(abs(last_point_y), 1e-6) > 0.1:
+                current_y = last_point_y
+                current_type = 'assume'
+        adjusted_points.append((current_type, (vertical_x, current_y)))
+elif prompt_logic == "notebook_12":
+                                                                                   
+                                                                                    
+    for vertical_x, _ in vertical_lines:
+        intersections_with_positive_slope = []
+        intersections_with_negative_slope = []
+        intersections_with_horizontal = []
+        for segment in positive_slope_lines:
+            inter_point = line_segment_vertical_intersection(
+                vertical_x, segment[0], prompt_extrapolate_px
+            )
+            if inter_point:
+                intersections_with_positive_slope.append(inter_point)
+        for segment in negative_slope_lines:
+            inter_point = line_segment_vertical_intersection(
+                vertical_x, segment[0], prompt_extrapolate_px
+            )
+            if inter_point:
+                intersections_with_negative_slope.append(inter_point)
+        merge_positive = merge_close_points(intersections_with_positive_slope)
+        merge_negative = merge_close_points(intersections_with_negative_slope)
+        pair = None
+        if len(merge_positive) > 0 and len(merge_negative) > 0:
+            if key_pair_max_sep_px >= 2609:
+                pair = (merge_positive[0], merge_negative[0])
+            else:
+                best_err = None
+                for pos_pt in merge_positive:
+                    for neg_pt in merge_negative:
+                        sep = abs(float(pos_pt[1]) - float(neg_pt[1]))
+                        if sep <= key_pair_max_sep_px:
+                            err = abs(sep - K_height_pixel)
+                            if best_err is None or err < best_err:
+                                best_err = err
+                                pair = (pos_pt, neg_pt)
+        if pair is not None:
+            midpoint = compute_midpoint(pair[0], pair[1])
+            adjusted_points.append(('midpoint', midpoint))
+        elif len(merge_positive) > 0:
+            point = merge_positive[0]
+            adjusted_points.append(('positive_slope', (point[0], point[1] - 0.5 * K_height_pixel)))
+        elif len(merge_negative) > 0:
+            point = merge_negative[0]
+            adjusted_points.append(('negative_slope', (point[0], point[1] + 0.5 * K_height_pixel)))
+        else:
+            for segment in horizontal_lines:
+                inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
+                if inter_point:
+                    intersections_with_horizontal.append(inter_point)
+            merge_horizontal = merge_close_points(intersections_with_horizontal)
+            pattern_midpoint = check_distance_pattern(
+                merge_horizontal, K_height_pixel, AB_height_pixel, tolerance=pattern_tolerance
+            )
+            if pattern_midpoint:
+                adjusted_points.append(('horizontal', pattern_midpoint))
+            else:
+                assumed_y = None
+                if adjusted_points:
+                    last_point_y = adjusted_points[-1][1][1]
+                    if 1035 <= last_point_y <= 1265:
+                        assumed_y = last_point_y + 431.87
+                    elif 1422 <= last_point_y <= 1738:
+                        assumed_y = last_point_y - 431.87
+                    elif len(adjusted_points) > 1:
+                        second_last_point_y = adjusted_points[-2][1][1]
+                        if 1035 <= second_last_point_y <= 1265 or 1422 <= second_last_point_y <= 1738:
+                            assumed_y = second_last_point_y
+                if assumed_y is not None:
+                    adjusted_points.append(('assume', (vertical_x, assumed_y)))
+                else:
+                    adjusted_points.append(('assume', (vertical_x, 0)))
+else:
+    for vertical_x, _ in vertical_lines:
+        intersections_with_positive_slope = []
+        intersections_with_negative_slope = []
+        intersections_with_horizontal = []
+        for segment in positive_slope_lines:
+            inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
+            if inter_point:
+                intersections_with_positive_slope.append(inter_point)
+        for segment in negative_slope_lines:
+            inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
+            if inter_point:
+                intersections_with_negative_slope.append(inter_point)
+        merge_positive = merge_close_points(intersections_with_positive_slope)
+        merge_negative = merge_close_points(intersections_with_negative_slope)
+        if len(merge_positive) > 0 and len(merge_negative) > 0:
+            midpoint = compute_midpoint(merge_positive[0], merge_negative[0])
+            adjusted_points.append(('midpoint', midpoint))
+        elif len(merge_positive) > 0:
+            point = merge_positive[0]
+            adjusted_points.append(('positive_slope', (point[0], point[1] + 0.5 * K_height_pixel)))
+        elif len(merge_negative) > 0:
+            point = merge_negative[0]
+            adjusted_points.append(('negative_slope', (point[0], point[1] - 0.5 * K_height_pixel)))
+        else:
+            for segment in horizontal_lines:
+                inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
+                if inter_point:
+                    intersections_with_horizontal.append(inter_point)
+            merge_horizontal = merge_close_points(intersections_with_horizontal)
+            pattern_midpoint = check_distance_pattern(
+                merge_horizontal, K_height_pixel, AB_height_pixel, tolerance=pattern_tolerance
+            )
+            if pattern_midpoint:
+                adjusted_points.append(('horizontal', pattern_midpoint))
+            else:
+                assumed_y = None
+                if adjusted_points:
+                    last_point_y = adjusted_points[-1][1][1]
+                    if 1035 <= last_point_y <= 1265:
+                        assumed_y = last_point_y + 431.87
+                    elif 1422 <= last_point_y <= 1738:
+                        assumed_y = last_point_y - 431.87
+                    else:
+                        if len(adjusted_points) > 1:
+                            second_last_point_y = adjusted_points[-2][1][1]
+                            if 1035 <= second_last_point_y <= 1265:
+                                assumed_y = second_last_point_y
+                            elif 1422 <= second_last_point_y <= 1738:
+                                assumed_y = second_last_point_y
+                if assumed_y is None:
+                    ring_idx = len(adjusted_points)
+                    assumed_y = 1123.0 if ring_idx % 2 == 0 else 1553.0
+                adjusted_points.append(('assume', (vertical_x, assumed_y)))
+
+if prompt_logic == "notebook_12" and prompt_extrapolate_px <= 0:
+                                                                               
+                                                                                    
+    _top = [pt[1] for _lab, pt in adjusted_points if 100 < pt[1] < 600]
+    if _top:
+        _fill = float(np.median(_top))
+        _n = 0
+        _fixed = []
+        for _lab, pt in adjusted_points:
+            if _lab == "assume" and pt[1] == 0:
+                _fixed.append((_lab, (pt[0], _fill)))
+                _n += 1
+            else:
+                _fixed.append((_lab, pt))
+        adjusted_points = _fixed
+        print(f"notebook_12 filled {_n} Y=0 prompts at Y={_fill:.1f}")
+
+k_row_gate_record = None
+if uniform_k_snap:
+    _ANCHOR_TYPES = {"midpoint", "horizontal", "positive_slope", "negative_slope"}
+    _anchor_ys = [pt[1] for label, pt in adjusted_points if label in _ANCHOR_TYPES]
+    if _anchor_ys:
+        y_star_measured = float(np.median(_anchor_ys))
+        if len(_anchor_ys) > 1 and np.std(_anchor_ys) > 40:
+            print(f"Warning: anchor Y std {np.std(_anchor_ys):.1f} > 40 before T3 uniform snap")
+                                                                               
+        nearest_row = float(min(k_row_pattern, key=lambda r: abs(r - y_star_measured)))
+        distance = float(abs(y_star_measured - nearest_row))
+        within = distance <= k_row_tolerance
+        y_star_used = y_star_measured
+        action_taken = "accept"
+        if within:
+            print(
+                f"T3 K-row gate OK: y_star={y_star_measured:.1f} within "
+                f"{distance:.1f}px of design row {nearest_row:.1f} "
+                f"(tol={k_row_tolerance:.1f})"
+            )
+        else:
+            msg = (
+                f"T3 K-row gate TRIGGERED: y_star={y_star_measured:.1f} is "
+                f"{distance:.1f}px from nearest design row {nearest_row:.1f} "
+                f"(tol={k_row_tolerance:.1f}, action={k_row_action})"
+            )
+            if k_row_action == "fail":
+                print(msg)
+                print(
+                    "Aborting stage 4 so the runner can retry with another seed. "
+                    "Exit code 3."
+                )
+                                                          
+                _gate_dir = os.path.dirname(paths["initial_points"])
+                os.makedirs(_gate_dir, exist_ok=True)
+                with open(os.path.join(_gate_dir, "k_row_gate.json"), "w") as _gf:
+                    json.dump(
+                        {
+                            "y_star_measured": y_star_measured,
+                            "y_star_used": None,
+                            "nearest_design_row": nearest_row,
+                            "distance_px": distance,
+                            "tolerance_px": k_row_tolerance,
+                            "k_row_pattern": k_row_pattern,
+                            "within_tolerance": False,
+                            "action_requested": k_row_action,
+                            "action_taken": "fail",
+                            "n_anchor_ys": len(_anchor_ys),
+                            "anchor_y_std": float(np.std(_anchor_ys)) if len(_anchor_ys) > 1 else 0.0,
+                        },
+                        _gf,
+                        indent=2,
+                    )
+                    _gf.write("\n")
+                sys.exit(3)
+            elif k_row_action == "snap":
+                y_star_used = nearest_row
+                action_taken = "snap"
+                print(msg)
+                print(f"T3 K-row gate SNAP: replacing y_star with {y_star_used:.1f}")
+            else:        
+                action_taken = "warn"
+                print(f"WARNING: {msg} — proceeding with measured y_star")
+
+        _n = len(adjusted_points)
+        adjusted_points = [
+            ("propagated", (pt[0], y_star_used))
+            for _, pt in adjusted_points
+        ]
+        print(f"T3 K uniform: set all {_n} rings to Y={y_star_used:.1f}")
+        k_row_gate_record = {
+            "y_star_measured": y_star_measured,
+            "y_star_used": y_star_used,
+            "nearest_design_row": nearest_row,
+            "distance_px": distance,
+            "tolerance_px": k_row_tolerance,
+            "k_row_pattern": k_row_pattern,
+            "within_tolerance": within,
+            "action_requested": k_row_action,
+            "action_taken": action_taken,
+            "n_anchor_ys": len(_anchor_ys),
+            "anchor_y_std": float(np.std(_anchor_ys)) if len(_anchor_ys) > 1 else 0.0,
+        }
+
 df_loc = pd.DataFrame(adjusted_points, columns=['Type', 'Coordinates'])
 df_loc['X'] = df_loc['Coordinates'].apply(lambda coord: coord[0])
 df_loc['Y'] = df_loc['Coordinates'].apply(lambda coord: coord[1])
 df_loc = df_loc.drop(columns=['Coordinates'])
 df_loc = df_loc.sort_values(by='X').reset_index(drop=True)
-print(f'Number of vertical lines: {len(vertical_lines)}')
-print(f'Number of adjusted points: {len(adjusted_points)}')
-print('DataFrame:')
+
+print(f"Number of vertical lines: {len(vertical_lines)}")
+print(f"Number of adjusted points: {len(adjusted_points)}")
 print(df_loc)
+
 plt.figure(figsize=(16, 16))
 ax = plt.gca()
-colors = {'horizontal': 'b', 'positive_slope': 'r', 'negative_slope': 'c', 'midpoint': 'm', 'assume': 'g'}
-markers = {'horizontal': 'o', 'positive_slope': '^', 'negative_slope': 's', 'midpoint': '*', 'assume': 'd'}
+colors = {'horizontal': 'b', 'positive_slope': 'r', 'negative_slope': 'c', 'midpoint': 'm', 'assume': 'g', 'propagated': 'y'}
+markers = {'horizontal': 'o', 'positive_slope': '^', 'negative_slope': 's', 'midpoint': '*', 'assume': 'd', 'propagated': 'P'}
 for label, (x, y) in adjusted_points:
     ax.plot(x, y, color=colors[label], marker=markers[label], markersize=10, label=label)
 handles, labels = ax.get_legend_handles_labels()
@@ -478,20 +699,26 @@ ax.set_ylabel('Y-axis')
 ax.set_title('Intersection Points')
 ax.set_aspect('equal', adjustable='box')
 ax.invert_yaxis()
-x_min, x_max = (df_loc['X'].min(), df_loc['X'].max())
-y_min, y_max = (df_loc['Y'].min(), df_loc['Y'].max())
-margin = 0.1
 if len(df_loc) > 0:
+    x_min, x_max = df_loc['X'].min(), df_loc['X'].max()
+    y_min, y_max = df_loc['Y'].min(), df_loc['Y'].max()
+    margin = 0.1
     x_range = x_max - x_min
     y_range = y_max - y_min
     ax.set_xlim(x_min - margin * x_range, x_max + margin * x_range)
     ax.set_ylim(y_max + margin * y_range, y_min - margin * y_range)
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(os.path.join(os.path.dirname(paths['initial_points']), 'initial_prompt_points.png'), dpi=150, bbox_inches='tight')
-df_loc.to_csv(paths['initial_points'], index=False)
-import numpy as np
-df_loc.to_csv(paths['initial_points'], index=False)
-state['df_loc'] = df_loc
-save_state(paths['state'], state)
+plt.savefig(os.path.join(os.path.dirname(paths["initial_points"]), "initial_prompt_points.png"), dpi=150, bbox_inches='tight')
+
+df_loc.to_csv(paths["initial_points"], index=False)
+state["df_loc"] = df_loc
+save_state(paths["state"], state)
+if k_row_gate_record is not None:
+    _gate_path = os.path.join(os.path.dirname(paths["initial_points"]), "k_row_gate.json")
+    with open(_gate_path, "w") as _gf:
+        json.dump(k_row_gate_record, _gf, indent=2)
+        _gf.write("\n")
+    print(f"K-row gate evidence -> {_gate_path}")
 print(f"Detection complete -> {paths['initial_points']}")
+

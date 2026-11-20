@@ -1,11 +1,4 @@
-"""T1/T2 template/prompt geometry extracted from anchors/t1&2/5_sam.py.
 
-Same API as ``t3_geometry`` / ``t45_geometry``: ``template_vertices_mm`` and
-``prompt_points_mm`` return raw millimetre coordinates about the prompt
-centre ``(x, y)``. The caller (``5_sam.py``) applies any K-block mirroring and
-the pixel scaling. The numeric tables are copied verbatim from the staggered
-(T1/T2) source so the anchor parameters reproduce anchor mIoU.
-"""
 
 from __future__ import annotations
 
@@ -39,7 +32,7 @@ def prompt_points_mm(x: float, y: float, block: str) -> tuple[np.ndarray, np.nda
             [x,y-639.96],[x,y],[x,y+639.96],
             [x+348.16,y-594.01],[x+348.16,y-219.01],[x+325,y],[x+348.16,y+219.01],[x+348.16,y+594.01],
             [x+500,y-573.96],[x+500,y+573.96],
-            [x+700,y-547.57],[x+700,y-373.96],[x+700,y-219.01],[x+700,y],[x+700,y+219.01],[x+700,y+373.96],[x+700,y+547.57],  # above are negative
+            [x+700,y-547.57],[x+700,y-373.96],[x+700,y-219.01],[x+700,y],[x+700,y+219.01],[x+700,y+373.96],[x+700,y+547.57],                      
 
             [x-500,y-505.96],[x-511.06,y-310.91],[x-500,y],[x-511.06,y+310.91],[x-500,y+505.96],
             [x-348.16,y-485.91],[x-348.16,y+485.91],

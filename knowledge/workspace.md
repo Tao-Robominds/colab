@@ -18,8 +18,7 @@ All substantive prose is stored under `knowledge/` or `wisdom/`. The root `READM
 | `src/rsi4tun/demo.py` and `cli.py` | Reproducible synthetic demonstration and commands |
 | `configs/` | Machine-readable experiment and comparison policies |
 | `configs/families/` | Family parameter packs for the real stage runner |
-| `pipeline/` | Proxy4Tun stage executor copied into this workspace |
-| `sam4tun/` | Stage scripts 1–6, helpers, Segment Anything package, and ViT-H weight |
+| `sam4tun/` | Parameterized stages 1–6, family_io, geometry helpers, Segment Anything package, and ViT-H weight |
 | `venv/` | Local Python environment with CUDA torch |
 | `data/development/` | Labelled scans and GT-derived tunnel metadata |
 | `data/deployment/` | Four-column scans without label or ring columns |

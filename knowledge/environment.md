@@ -8,8 +8,7 @@ This workspace holds a self-contained copy of the runnable SAM4Tun environment. 
 | --- | --- | --- |
 | `venv/` | CoLab `venv/` | Python 3.12.12 with torch CUDA, OpenCV, faiss, numba, and related packages |
 | `sam4tun/segment-anything/` | CoLab `sam4tun/segment-anything/` | Segment Anything package and ViT-H checkpoint |
-| `sam4tun/` | CoLab `sam4tun/` | Stage scripts 1–6, helpers, Segment Anything, ViT-H weight |
-| `pipeline/` | Proxy4Tun `pipeline/` | Stage executor used by CoLab experiments |
+| `sam4tun/` | Proxy4Tun `pipeline/` + CoLab helpers/SAM | Parameterized stages 1–6, family_io, geometry, helpers, Segment Anything, ViT-H weight |
 | `configs/families/` | CoLab `configs/families/` | Family parameter packs |
 | `data/development/scans/` | CoLab scans and RSI4Tun `sample.txt` | Full six-column labelled scans |
 | `data/development/meta/tunnel_meta.json` | CoLab `data/meta/tunnel_meta.json` | Drive orientation metadata |

@@ -1,4 +1,4 @@
-"""T4/T5 template/prompt geometry extracted from sam4tun/notebook/t4&5.ipynb cell 79."""
+
 
 from __future__ import annotations
 
@@ -245,7 +245,7 @@ def prompt_points_mm(x: float, y: float, block: str) -> tuple[np.ndarray, np.nda
         labels = np.repeat([0, 1], [39, 39])
         return points, labels
 
-    # A1/A2/A3/A4
+                 
     points = np.array(
         [
             [x - 1000, y - 1953.44],

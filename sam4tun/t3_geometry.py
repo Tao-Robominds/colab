@@ -1,4 +1,4 @@
-"""T3 template/prompt geometry extracted from sam4tun/notebook/t3.ipynb cell 77."""
+
 
 from __future__ import annotations
 
