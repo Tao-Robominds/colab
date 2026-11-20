@@ -111,4 +111,4 @@ The delivered `proxy.py` fits a standardised ridge model using training rows onl
 
 If an applicable tunnel condition is absent, first inspect existing development coverage. If the gap matters to the next decision, request one representative labelled subset with a declared coverage purpose. Once labelled and used for development, that subset is no longer unseen evaluation data. Repeated metric rejection alone does not justify acquiring labels.
 
-These rules implement the supplied `SOUL.md`, especially Core beliefs 1–4, 6–8 and Research boundaries. They specify research discipline; they do not establish the novelty or effectiveness of the resulting method.
+These rules specify research discipline for executable evidence work; they do not establish the novelty or effectiveness of the resulting method.

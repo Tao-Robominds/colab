@@ -1,7 +1,5 @@
 # Sources and scope
 
-The current governing source is the user-supplied `SOUL.md`, copied unchanged to `knowledge/SOUL.md`. Its source digest appears in `manifest.json`.
-
 The current task sets final 3D semantic mIoU as the performance target, identifies K-centre localisation as the initial bottleneck, requires the full SAM4Tun process, permits newly curated expert-reference artefacts, and requires whole-code version control with prose outside code.
 
 No previous experiment tables, proxy coefficients, trial outcomes or empirical success narratives were imported into this workspace. Numeric examples are newly generated synthetic software fixtures. They are explicitly ineligible for scientific learning.

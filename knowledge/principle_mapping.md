@@ -1,8 +1,8 @@
-# Mapping from SOUL to the implementation
+# Mapping from research principles to the implementation
 
-The authoritative source is [the supplied SOUL](SOUL.md). Its original bytes are preserved. `sources/manifest.json` records its digest. This table describes design choices rather than experimental findings.
+This table describes design choices rather than experimental findings.
 
-| SOUL principle | Implemented representation | Remaining real-system obligation |
+| Principle | Implemented representation | Remaining real-system obligation |
 | --- | --- | --- |
 | Represent observations through code | Typed artefact bundles; complete stage files; executable measurements; stage and bundle integrity checks | Map the real point cloud and SAM outputs into the contract without losing necessary information |
 | Make explanations executable | Versioned hypothesis functions, registered response intervals and deterministic assessment | Develop and test meaningful response models; fixture coefficients have no scientific standing |

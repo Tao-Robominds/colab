@@ -1,14 +1,12 @@
 {
-  "protocol_source": "knowledge/SOUL.md",
-  "protocol_sha256": "bd0fed8eaa60adf4a43b9886a29fbdadf382e26a6b47a365dd73dad25f6fb726",
   "prior_experiment_imports": [],
   "environment_asset_imports": [
     "venv",
     "sam4tun/segment-anything",
-    "pipeline",
+    "sam4tun",
     "configs/families",
-    "data/development/scans",
-    "data/development/meta/tunnel_meta.json"
+    "data/scans",
+    "data/meta/tunnel_meta.json"
   ],
   "approved_scientific_claims": [],
   "synthetic_examples_learning_eligible": false

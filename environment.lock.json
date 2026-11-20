@@ -1,53 +1,4 @@
 {
-  "deployment_scans": [
-    {
-      "bytes": 53239923,
-      "path": "data/deployment/scans/sample.txt",
-      "sha256": "4d49aff30103f6e03e9710013a9030a37518f979ab102d6caa0115017d49ddf0"
-    },
-    {
-      "bytes": 89103399,
-      "path": "data/deployment/scans/1-1.txt",
-      "sha256": "e0d0c02fa7a380d2997d4d6f6862c8eb164f14c745343b04851dc2a494a8d92b"
-    },
-    {
-      "bytes": 30722010,
-      "path": "data/deployment/scans/3-1.txt",
-      "sha256": "a3109543e5f7722028c7de5e704e550a34033bdbc7a917d540aa5f70dd233644"
-    },
-    {
-      "bytes": 90736681,
-      "path": "data/deployment/scans/5-1.txt",
-      "sha256": "3800f864aec5ee4cfaac932aaf2ed51f2c5b46ea0ad0137bd8d263f6636d28d2"
-    }
-  ],
-  "development_meta": {
-    "bytes": 4943,
-    "path": "data/development/meta/tunnel_meta.json",
-    "sha256": "37a6e2fe1992a1a4f1d0b658e95a44158dca57599b2bbbb9e289e4299f5d8998"
-  },
-  "development_scans": [
-    {
-      "bytes": 73215747,
-      "path": "data/development/scans/sample.txt",
-      "sha256": "1075f8d905b596612f92bac1b6dc6c90112747381e40d79eeca1993807cec8b8"
-    },
-    {
-      "bytes": 98744329,
-      "path": "data/development/scans/1-1.txt",
-      "sha256": "4887463ce9ce2d9b7370e01454e429fa49db4c79cd280f544792a59f2ca0e186"
-    },
-    {
-      "bytes": 33935200,
-      "path": "data/development/scans/3-1.txt",
-      "sha256": "f7808f00ecb3c54a0965b5782f60c009fa178adec2c2a79016cdc2180c250576"
-    },
-    {
-      "bytes": 102481243,
-      "path": "data/development/scans/5-1.txt",
-      "sha256": "d8fdce7bfe576e6713a909a133dd75859451586f9416c43e3b0bcaa5f8d16dbd"
-    }
-  ],
   "family_configs": [
     {
       "bytes": 196,
@@ -171,8 +122,6 @@
     }
   ],
   "notes": {
-    "deployment_scan_columns": 4,
-    "development_scan_columns": 6,
     "historical_trials_imported": false,
     "tunnel_meta_fields": [
       "inner_diameter_m",
@@ -180,7 +129,8 @@
       "ring_count",
       "orientation_xy"
     ],
-    "tunnel_meta_gt_derived": false
+    "tunnel_meta_gt_derived": false,
+    "scan_columns": 6
   },
   "pipeline": [
     {
@@ -288,5 +238,32 @@
       "path": "sam4tun/segment-anything/segment_anything/__init__.py",
       "sha256": "c8d8eb649610b2d51f138481a89617a3dcb61106465121dcb1c2f23affc84c30"
     }
+  },
+  "scans": [
+    {
+      "bytes": 98744329,
+      "path": "data/scans/1-1.txt",
+      "sha256": "4887463ce9ce2d9b7370e01454e429fa49db4c79cd280f544792a59f2ca0e186"
+    },
+    {
+      "bytes": 33935200,
+      "path": "data/scans/3-1.txt",
+      "sha256": "f7808f00ecb3c54a0965b5782f60c009fa178adec2c2a79016cdc2180c250576"
+    },
+    {
+      "bytes": 102481243,
+      "path": "data/scans/5-1.txt",
+      "sha256": "d8fdce7bfe576e6713a909a133dd75859451586f9416c43e3b0bcaa5f8d16dbd"
+    },
+    {
+      "bytes": 73215747,
+      "path": "data/scans/sample.txt",
+      "sha256": "1075f8d905b596612f92bac1b6dc6c90112747381e40d79eeca1993807cec8b8"
+    }
+  ],
+  "meta": {
+    "bytes": 4943,
+    "path": "data/meta/tunnel_meta.json",
+    "sha256": "37a6e2fe1992a1a4f1d0b658e95a44158dca57599b2bbbb9e289e4299f5d8998"
   }
 }

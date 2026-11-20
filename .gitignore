@@ -35,6 +35,9 @@ rst/
 archive/
 development_private/
 
+# Private local Cursor rules (not for public remotes)
+.cursor/rules/private/
+
 # OS / editor noise
 .DS_Store
 Thumbs.db

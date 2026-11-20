@@ -1,6 +1,6 @@
 # Local environment
 
-This workspace holds a self-contained copy of the runnable SAM4Tun environment. The architecture and SOUL remain unchanged. Historical CoLab trials and proxy coefficients were not imported.
+This workspace holds a self-contained copy of the runnable SAM4Tun environment. The architecture remains unchanged. Historical CoLab trials and proxy coefficients were not imported.
 
 ## Copied into this repository
 
@@ -10,9 +10,8 @@ This workspace holds a self-contained copy of the runnable SAM4Tun environment. 
 | `sam4tun/segment-anything/` | CoLab `sam4tun/segment-anything/` | Segment Anything package and ViT-H checkpoint |
 | `sam4tun/` | Proxy4Tun `pipeline/` + CoLab helpers/SAM | Parameterized stages 1–6, helpers (family_io, geometry, IO), Segment Anything, ViT-H weight |
 | `configs/families/` | CoLab `configs/families/` | Family parameter packs |
-| `data/development/scans/` | CoLab scans and RSI4Tun `sample.txt` | Full six-column labelled scans |
-| `data/development/meta/tunnel_meta.json` | CoLab `data/meta/tunnel_meta.json` | Drive orientation metadata |
-| `data/deployment/scans/` | Derived here | Four-column scans with label and ring columns removed |
+| `data/scans/` | CoLab scans and RSI4Tun `sample.txt` | Six-column scans (xyz, intensity, label, ring) |
+| `data/meta/tunnel_meta.json` | CoLab `data/meta/tunnel_meta.json` | Design blueprint metadata for development and deployment |
 
 ## Path rewrites after the virtualenv copy
 
@@ -30,15 +29,15 @@ The CoLab virtualenv still pointed at other projects. After the copy, these iden
 
 `venv/bin/python` keeps a `RUNPATH` into `~/.pyenv/versions/3.12.12` and `~/.pyenv-deps`. Those libraries stay on the host. `environment.lock.json` records them.
 
-## Development and deployment data
+## Scan and meta data
 
-Development scans keep six fields: coordinates, intensity, semantic label, and ring index. Deployment scans keep the first four fields only. Deployment mounts must not include `data/development/`.
+Scans live once under `data/scans/` with six fields: coordinates, intensity, semantic label, and ring index. Stage scripts read only the columns they need (`usecols`). Shared tunnel meta lives under `data/meta/`. Development and deployment run outputs go under `data/development/` and `data/deployment/`.
 
 `tunnel_meta.json` holds design-blueprint fields only: inner diameter, ring length, ring count, and orientation. It is keyed by subset id. Stage 1 loads these through `sam4tun/helpers/design_blueprint.py` and uses them for diameter, slicing ring count, ring-length checks, and drive orientation.
 
 ## Excluded from this import
 
-- Historical run trees under CoLab `data/development`, `data/deployment`, and `runs/`
+- Historical run trees under CoLab `data/development`, `data/deployment`, and `runs/` (only current scans and meta were kept)
 - `sam4tun/data/monolith`
 - `registry/proxies/` and CoLab `configs/defaults.yaml`
 - Tracked copies of `.env` secrets

@@ -25,20 +25,18 @@ class EnvironmentBoundaryTests(unittest.TestCase):
             self.assertFalse(dirty["passed"])
             self.assertTrue(any(item[2] == "comment" for item in dirty["violations"]))
 
-    def test_development_scans_have_six_fields_and_deployment_have_four(self):
+    def test_scans_live_once_under_data_scans_with_six_fields(self):
         root = Path(__file__).resolve().parents[1]
         names = ("sample.txt", "1-1.txt", "3-1.txt", "5-1.txt")
         for name in names:
-            development = root / "data" / "development" / "scans" / name
-            deployment = root / "data" / "deployment" / "scans" / name
-            self.assertTrue(development.is_file(), name)
-            self.assertTrue(deployment.is_file(), name)
-            with development.open() as stream:
-                development_fields = len(stream.readline().split())
-            with deployment.open() as stream:
-                deployment_fields = len(stream.readline().split())
-            self.assertEqual(development_fields, 6, name)
-            self.assertEqual(deployment_fields, 4, name)
+            scan = root / "data" / "scans" / name
+            self.assertTrue(scan.is_file(), name)
+            with scan.open() as stream:
+                fields = len(stream.readline().split())
+            self.assertEqual(fields, 6, name)
+        self.assertTrue((root / "data" / "deployment").is_dir())
+        self.assertFalse(any((root / "data" / "deployment").rglob("*.txt")))
+        self.assertFalse((root / "data" / "development" / "scans").exists())
 
 
 if __name__ == "__main__":

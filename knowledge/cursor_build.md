@@ -4,7 +4,7 @@
 
 Implement this architecture around the actual SAM4Tun code. Improve final 3D semantic mIoU. Start with K-centre localisation, while running the whole pipeline for every decision-relevant experiment. Start with new evidence and newly curated expert references. Do not import historical trials or earlier learned proxy state.
 
-Follow the supplied `SOUL.md`. Keep code free of comments and docstrings. Put descriptive instructions, prompts, assumptions, and findings in `knowledge/` or `wisdom/`. Do not convert untested notes into accepted knowledge merely because they occupy a directory named `knowledge`.
+Keep code free of comments and docstrings. Put descriptive instructions, prompts, assumptions, and findings in `knowledge/` or `wisdom/`. Do not convert untested notes into accepted knowledge merely because they occupy a directory named `knowledge`.
 
 Use one replaceable LLM researcher and explicit deterministic components. Prefer existing project functions over a new orchestration framework. The researcher returns structured executable proposals; controllers own evaluation and release decisions.
 

@@ -10,4 +10,4 @@ Before retrieval, verify status and scope. If no wisdom applies, fall back to te
 
 Revise or suspend an item when contradictory evidence changes its support. Keep previous versions. A failed intervention remains in the evidence archive even when a later principle supersedes the earlier interpretation.
 
-The supplied `SOUL.md`, Core belief 8, defines these standards. This directory's existence does not certify any scientific claim.
+Accepted wisdom requires synthesised tested knowledge with stated scope. This directory's existence does not certify any scientific claim.

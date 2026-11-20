@@ -20,10 +20,12 @@ All substantive prose is stored under `knowledge/` or `wisdom/`. The root `READM
 | `configs/families/` | Family parameter packs for the real stage runner |
 | `sam4tun/` | Parameterized stages 1–6, helpers (family_io, geometry, IO), Segment Anything package, and ViT-H weight |
 | `venv/` | Local Python environment with CUDA torch |
-| `data/development/` | Labelled scans and GT-derived tunnel metadata |
-| `data/deployment/` | Four-column scans without label or ring columns |
+| `data/scans/` | Six-column labelled scans shared by stage runs |
+| `data/meta/` | Shared tunnel design-blueprint metadata |
+| `data/development/` | Local development run outputs |
+| `data/deployment/` | Deployment run outputs |
 | `environment.lock.json` | Digests and substrate pins for the local environment |
-| `knowledge/` | SOUL, specifications, assumptions, hypotheses, prompts, provisional notes and verification |
+| `knowledge/` | Specifications, assumptions, hypotheses, prompts, provisional notes and verification |
 | `knowledge/environment.md` | Copy list, path rewrites, and GT isolation notes |
 | `wisdom/` | Acceptance rules for scoped principles; no accepted research wisdom is supplied |
 | `tests/` | Meaningful evidence, validation, protocol, integrity and source-version tests |

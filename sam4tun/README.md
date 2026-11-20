@@ -33,9 +33,9 @@ From the workspace root:
 
 ```bash
 export PROXY4TUN_OUT_ROOT="$PWD/data/development/1-1"
-export PROXY4TUN_INPUT_TXT="$PWD/data/development/scans/1-1.txt"
+export PROXY4TUN_INPUT_TXT="$PWD/data/scans/1-1.txt"
 export PROXY4TUN_PARAMS_DIR="$PWD/configs/families/staggered"
-export PROXY4TUN_TUNNEL_META="$PWD/data/development/meta/tunnel_meta.json"
+export PROXY4TUN_TUNNEL_META="$PWD/data/meta/tunnel_meta.json"
 export PROXY4TUN_SUBSET="1-1"
 export PYTHONPATH="$PWD/sam4tun:$PWD/sam4tun/segment-anything"
 mkdir -p "$PROXY4TUN_OUT_ROOT"

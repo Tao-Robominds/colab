@@ -6,7 +6,7 @@ Build a co-lab that improves **final 3D semantic mIoU** through executable evide
 
 This workspace implements contracts, artefact comparisons, standard-library ridge fitting, grouped proxy-validation gates, and a synthetic demonstration. It supplies the architecture and build instructions for connecting the real SAM4Tun repository. A synthetic pass is a software check. It is not evidence of improved segmentation, a validated research proxy, or a supported causal explanation.
 
-The supplied `SOUL.md` governs the design: executable representations and hypotheses, differential diagnosis, explicit proxy limits, and evidence-backed knowledge and wisdom. The documents here are **design specifications**, unless a claim record explicitly carries an accepted evidence status.
+The design emphasises executable representations and hypotheses, differential diagnosis, explicit proxy limits, and evidence-backed knowledge and wisdom. The documents here are **design specifications**, unless a claim record explicitly carries an accepted evidence status.
 
 ## Start here
 
@@ -14,7 +14,7 @@ The supplied `SOUL.md` governs the design: executable representations and hypoth
 2. Follow [the Cursor build instructions](cursor_build.md).
 3. Read the [RST guide](rst_guide.md) before connecting a researcher.
 4. Inspect [knowledge acceptance](claims/README.md) and [wisdom acceptance](../wisdom/README.md).
-5. Check the [workspace map](workspace.md), [SOUL mapping](soul_mapping.md), and [verification limits](verification.md).
+5. Check the [workspace map](workspace.md), [principle mapping](principle_mapping.md), and [verification limits](verification.md).
 
 Run from the workspace root:
 
