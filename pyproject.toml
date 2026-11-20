@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rsi4tun-executable-evidence"
+version = "0.3.0"
+requires-python = ">=3.11"
+dependencies = []
+readme = "knowledge/README.md"
+
+[project.scripts]
+rsi4tun = "rsi4tun.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

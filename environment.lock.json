@@ -1,0 +1,297 @@
+{
+  "deployment_scans": [
+    {
+      "bytes": 53239923,
+      "path": "data/deployment/scans/sample.txt",
+      "sha256": "4d49aff30103f6e03e9710013a9030a37518f979ab102d6caa0115017d49ddf0"
+    },
+    {
+      "bytes": 89103399,
+      "path": "data/deployment/scans/1-1.txt",
+      "sha256": "e0d0c02fa7a380d2997d4d6f6862c8eb164f14c745343b04851dc2a494a8d92b"
+    },
+    {
+      "bytes": 30722010,
+      "path": "data/deployment/scans/3-1.txt",
+      "sha256": "a3109543e5f7722028c7de5e704e550a34033bdbc7a917d540aa5f70dd233644"
+    },
+    {
+      "bytes": 90736681,
+      "path": "data/deployment/scans/5-1.txt",
+      "sha256": "3800f864aec5ee4cfaac932aaf2ed51f2c5b46ea0ad0137bd8d263f6636d28d2"
+    }
+  ],
+  "development_meta": {
+    "bytes": 4943,
+    "path": "data/development/meta/tunnel_meta.json",
+    "sha256": "37a6e2fe1992a1a4f1d0b658e95a44158dca57599b2bbbb9e289e4299f5d8998"
+  },
+  "development_scans": [
+    {
+      "bytes": 73215747,
+      "path": "data/development/scans/sample.txt",
+      "sha256": "1075f8d905b596612f92bac1b6dc6c90112747381e40d79eeca1993807cec8b8"
+    },
+    {
+      "bytes": 98744329,
+      "path": "data/development/scans/1-1.txt",
+      "sha256": "4887463ce9ce2d9b7370e01454e429fa49db4c79cd280f544792a59f2ca0e186"
+    },
+    {
+      "bytes": 33935200,
+      "path": "data/development/scans/3-1.txt",
+      "sha256": "f7808f00ecb3c54a0965b5782f60c009fa178adec2c2a79016cdc2180c250576"
+    },
+    {
+      "bytes": 102481243,
+      "path": "data/development/scans/5-1.txt",
+      "sha256": "d8fdce7bfe576e6713a909a133dd75859451586f9416c43e3b0bcaa5f8d16dbd"
+    }
+  ],
+  "family_configs": [
+    {
+      "bytes": 196,
+      "path": "configs/families/complex/parameters_denoising.json",
+      "sha256": "ff1f906edc8921568174de5fd36f8c6dfec716fe94b090b076f7dd83d2f0438b"
+    },
+    {
+      "bytes": 806,
+      "path": "configs/families/complex/parameters_detecting.json",
+      "sha256": "d969828dc5b8b173f44f9f67694f09000709f99b284a9c9c60f615c0bf32f933"
+    },
+    {
+      "bytes": 609,
+      "path": "configs/families/complex/parameters_enhancing.json",
+      "sha256": "ab222025bd5504f1587002a8a85398cbcd08d7184b2721dcc9e60a8e0af504a1"
+    },
+    {
+      "bytes": 31,
+      "path": "configs/families/complex/parameters_family.json",
+      "sha256": "c06a366e5feaa951db6d4a8ccb6e5f11858ae34af9d4601526f95df30b36daab"
+    },
+    {
+      "bytes": 527,
+      "path": "configs/families/complex/parameters_sam.json",
+      "sha256": "2601c0981a2e61d313b6475bacfe149e6ccff3ed5661580ba5376a49cd97ffbc"
+    },
+    {
+      "bytes": 600,
+      "path": "configs/families/complex/parameters_unfolding.json",
+      "sha256": "cc58e19da628077f1578c5807faa5872c65bfaef020660fd1d2c115e39e3e17e"
+    },
+    {
+      "bytes": 287,
+      "path": "configs/families/continuous/parameters_denoising.json",
+      "sha256": "c8894e34e397f9967f437490c1e27b7a3e94801601ec98b1d56a627483038740"
+    },
+    {
+      "bytes": 862,
+      "path": "configs/families/continuous/parameters_detecting.json",
+      "sha256": "d345d3f9cb3c31e19efc8cf629336d889b74529962ec57f55c81b0badc70ba2d"
+    },
+    {
+      "bytes": 602,
+      "path": "configs/families/continuous/parameters_enhancing.json",
+      "sha256": "df7563eb10c20529adf934f611fff7ea9f75f04757f198c87a32fe45509afc3f"
+    },
+    {
+      "bytes": 34,
+      "path": "configs/families/continuous/parameters_family.json",
+      "sha256": "772e3fbe9e267ce4da7927eca498fc92660a9b196ec7388b8a130e9e9f23b4f3"
+    },
+    {
+      "bytes": 595,
+      "path": "configs/families/continuous/parameters_sam.json",
+      "sha256": "1a8e270f2c8827df41ad37f108a8e53896383d81d7ea540d3c9a57f2b8a1eb30"
+    },
+    {
+      "bytes": 676,
+      "path": "configs/families/continuous/parameters_unfolding.json",
+      "sha256": "c584a65891d8917e3d07e262f2c88a09fd911379b188024784149c367226f3df"
+    },
+    {
+      "bytes": 193,
+      "path": "configs/families/sample/parameters_denoising.json",
+      "sha256": "5affbd822947868a0abdad121513097d67ffa49fc7d0ea5e614349cb7b7b4d24"
+    },
+    {
+      "bytes": 526,
+      "path": "configs/families/sample/parameters_detecting.json",
+      "sha256": "230ada91dc040e3e67176de55c78ba928135785b1493b7b406e03d5979b2d5db"
+    },
+    {
+      "bytes": 460,
+      "path": "configs/families/sample/parameters_enhancing.json",
+      "sha256": "713d163492aac2cdcb8f54e9e8a4537cb6212192a28b83131332642bcb496e42"
+    },
+    {
+      "bytes": 120,
+      "path": "configs/families/sample/parameters_family.json",
+      "sha256": "c2414aa564bff1408340f7b70a441d8b248eda72c851661972cda34422d8c22d"
+    },
+    {
+      "bytes": 2095,
+      "path": "configs/families/sample/parameters_sam.json",
+      "sha256": "1709abdd7696718dd4a1c4e9cf8ba9ada33ed864a4f1e3babe10e2d12e5f0202"
+    },
+    {
+      "bytes": 490,
+      "path": "configs/families/sample/parameters_unfolding.json",
+      "sha256": "b968ed17bce299d6d39addec5ca7dcc3a22978143fe16c44c513c04a14b4f5a0"
+    },
+    {
+      "bytes": 196,
+      "path": "configs/families/staggered/parameters_denoising.json",
+      "sha256": "6fcc709e4e4a2bfcd81614e293f391434a28f6d2429083a4189aa2c9ab82f42c"
+    },
+    {
+      "bytes": 634,
+      "path": "configs/families/staggered/parameters_detecting.json",
+      "sha256": "9d5cc9d0a523b663d60762760bbe5a6ab5cf84029d883c14ee262cd9217c56ac"
+    },
+    {
+      "bytes": 461,
+      "path": "configs/families/staggered/parameters_enhancing.json",
+      "sha256": "b08b381ba79ed7f8f6d9c24d4e009beca80b00f9b422dbf957a82b35f54402c3"
+    },
+    {
+      "bytes": 33,
+      "path": "configs/families/staggered/parameters_family.json",
+      "sha256": "4b2ff3a0b5691dbd65df555212cdc8132e71d3680a395229401d55e68db26e76"
+    },
+    {
+      "bytes": 2274,
+      "path": "configs/families/staggered/parameters_sam.json",
+      "sha256": "b6a784b32773dcad59857c63baae9b8715985a831200a1d768e947001bde706d"
+    },
+    {
+      "bytes": 490,
+      "path": "configs/families/staggered/parameters_unfolding.json",
+      "sha256": "b968ed17bce299d6d39addec5ca7dcc3a22978143fe16c44c513c04a14b4f5a0"
+    }
+  ],
+  "notes": {
+    "deployment_scan_columns": 4,
+    "development_scan_columns": 6,
+    "historical_trials_imported": false,
+    "tunnel_meta_fields": [
+      "inner_diameter_m",
+      "ring_length_m",
+      "ring_count",
+      "orientation_xy"
+    ],
+    "tunnel_meta_gt_derived": false
+  },
+  "pipeline": [
+    {
+      "bytes": 39678,
+      "path": "pipeline/1_unfolding.py",
+      "sha256": "aaa492eddf78f055d3b68da476352c997e0bd0f0f2d51e3f9af116e1982a994e"
+    },
+    {
+      "bytes": 7004,
+      "path": "pipeline/2_denoising.py",
+      "sha256": "f4a614dc15589d9de8ad88a29baa973e2065d29043870b155ac535cd69c83e5d"
+    },
+    {
+      "bytes": 26416,
+      "path": "pipeline/3_enhancing.py",
+      "sha256": "79dc300fedab117288dd69bf7a6d41887f6d5c8b0db09c8404dfcca587468cf9"
+    },
+    {
+      "bytes": 38241,
+      "path": "pipeline/4_detection.py",
+      "sha256": "11a53d28be3f4df31e856440d407eac17efee4330ceddce7da20f198f759e791"
+    },
+    {
+      "bytes": 40373,
+      "path": "pipeline/5_sam.py",
+      "sha256": "b61c9378de3e6bbb21ea1ecb4278a48e6eca1418abe121c689642dcbfe5eb08e"
+    },
+    {
+      "bytes": 15861,
+      "path": "pipeline/6_evaluation.py",
+      "sha256": "431e756ff7b3d4e2cd473f81b800e48109d9c014a4f5baa5e578ed3dc6e43b51"
+    },
+    {
+      "bytes": 5499,
+      "path": "pipeline/family_io.py",
+      "sha256": "33def7534b9d8faae51d64bda30830a2a0f382d9a29153c112894a66c6104b55"
+    },
+    {
+      "bytes": 1806,
+      "path": "pipeline/assume_fill.py",
+      "sha256": "a5ef5ccacb3b300f7c94b60b5e45567f56afb45b863ce0b15cd689b8881b5f19"
+    },
+    {
+      "bytes": 6377,
+      "path": "pipeline/centre_repairs.py",
+      "sha256": "fd24d84af9fe088e165bb03832d4b558da171ed77a60e6cdb3d0a9239ec7f713"
+    },
+    {
+      "bytes": 9223,
+      "path": "pipeline/t12_geometry.py",
+      "sha256": "49192e3c040eef865ae3f20d0a1f687d1de45b17440969cb4b2933a55263e992"
+    },
+    {
+      "bytes": 13782,
+      "path": "pipeline/t3_geometry.py",
+      "sha256": "ac356af503c9b7fececa6ddf6377c9a7659beef955c8244d38cb39f249c81822"
+    },
+    {
+      "bytes": 11827,
+      "path": "pipeline/t45_geometry.py",
+      "sha256": "6587443aeefa38da5029caa0578ba1018f83cbbed4440942e5b61c7cce7c8b95"
+    }
+  ],
+  "python": {
+    "interpreter": "venv/bin/python",
+    "substrate": {
+      "libpython": "/home/boringtao/.pyenv/versions/3.12.12/lib/libpython3.12.so.1.0",
+      "runpath": [
+        "/home/boringtao/.pyenv/versions/3.12.12/lib",
+        "/home/boringtao/.pyenv-deps/zlib/lib",
+        "/home/boringtao/.pyenv-deps/openssl/lib64",
+        "/home/boringtao/.pyenv-deps/libffi/lib",
+        "/home/boringtao/.pyenv-deps/bzip2/lib",
+        "/home/boringtao/.pyenv-deps/xz/lib"
+      ]
+    },
+    "version": "3.12.12"
+  },
+  "sam4tun_helpers": [
+    {
+      "bytes": 0,
+      "path": "sam4tun/helpers/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1889,
+      "path": "sam4tun/helpers/design_blueprint.py",
+      "sha256": "fabb9bf3d9535405a814c34c55b019161d33a8d48c8c82b433b9821818173778"
+    },
+    {
+      "bytes": 3664,
+      "path": "sam4tun/helpers/pipeline_io.py",
+      "sha256": "665a4bfa1dbec24eecd0ce0a969a251b9a1a24e2eca8c0ea491561cd6fabdd7b"
+    },
+    {
+      "bytes": 389,
+      "path": "sam4tun/helpers/pipeline_state.py",
+      "sha256": "216cebda9a3d62a6d747b3846dd827925a8773a166aade1ec275bcfd3026c0a7"
+    }
+  ],
+  "segment_anything": {
+    "checkpoint": {
+      "bytes": 2564550879,
+      "path": "sam4tun/segment-anything/sam_vit_h_4b8939.pth",
+      "sha256": "a7bf3b02f3ebf1267aba913ff637d9a2d5c33d3173bb679e46d9f338c26f262e"
+    },
+    "package": "sam4tun/segment-anything/segment_anything",
+    "package_init": {
+      "bytes": 427,
+      "path": "sam4tun/segment-anything/segment_anything/__init__.py",
+      "sha256": "c8d8eb649610b2d51f138481a89617a3dcb61106465121dcb1c2f23affc84c30"
+    }
+  }
+}

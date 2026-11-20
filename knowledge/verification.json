@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-20",
+  "test_command": "PYTHONPATH=src python -m unittest discover -s tests -v",
+  "tests_passed": 74,
+  "tests_failed": 0,
+  "source_hygiene": {
+    "checked_files": 21,
+    "violations": [],
+    "passed": true
+  },
+  "synthetic_integration": {
+    "full_runs": 6,
+    "stages_per_run": 8,
+    "baseline_score": 0.65,
+    "arm_a_score": 0.8,
+    "arm_b_score": 0.7,
+    "diagnosis": "h1_supported",
+    "rollback_preserved_accepted_commit": true,
+    "plateau_status": "plateau",
+    "scientific_knowledge_promoted": false
+  },
+  "real_sam_executed": false,
+  "real_proxy_validated": false,
+  "deployment_os_isolation_provisioned": false,
+  "code_sha256_manifest": {
+    "src/rsi4tun/__init__.py": "56b5e91c3bb77ab933c25fd65eba883419bdc5691cc94cb9dc840e8f4e3674eb",
+    "src/rsi4tun/__main__.py": "a964644b545d2562033496af19b7915d64594deb70545e6cd5b15ce83f7efeb7",
+    "src/rsi4tun/adapters.py": "80fc288163fb409cc78d699fad3e25e13b1f43c5ec578694ca41dba2d704e14f",
+    "src/rsi4tun/cli.py": "b2e269bcad20c137685205ccf09a7e9f64d5429e4da902c2b907c36bf9e78330",
+    "src/rsi4tun/contracts.py": "6118b2ecdc71d6b52ddef66a04b6542caf48298536fa78d089c0d2b28c5a80da",
+    "src/rsi4tun/demo.py": "1db8260f698783e49ceea28b1f92cf29bfb2bba3efbc446b06336173ebe371e8",
+    "src/rsi4tun/diagnosis.py": "4baea702b818db6fc60440e8fc8d8e887e6c7b58af0bde93a577ccba467967bf",
+    "src/rsi4tun/evaluation.py": "80b1b89bc698d7e78ac1eaceb4ae632428025e0a39d98f8b3372c382eda087c7",
+    "src/rsi4tun/evidence.py": "e9562bd47c6c77150b127dad27b3de1a47a4d7e9a145244a7e8363c1a261d0f3",
+    "src/rsi4tun/hypotheses.py": "d1e273cf2dbd4cd6cc969dd18387e0535babcecdc973662e90e5167fc5956b9c",
+    "src/rsi4tun/orchestrator.py": "f08be805e6d2f3f1cc6e67ad4f47265d541d8cda26b521d63b225d51fe17f185",
+    "src/rsi4tun/proxy.py": "cf52196dc2e0c822c4de57118852bcfcb8c4ff132a84fa7530e6ffedf0918bea",
+    "src/rsi4tun/quality.py": "f99e5decbd08878fd9069f2d1ff1a89faaa8ee4fd76a8a1fe012826237a3e430",
+    "src/rsi4tun/records.py": "31613860e75a4c24d045d65c331790bfc44d6b8fe8d9d8f1d1052d6050e56051",
+    "src/rsi4tun/researcher.py": "42021b590a4d5b1535ca033c00bf52151b947fa2d1e3d5f06895ecfc70f2eab2",
+    "src/rsi4tun/versions.py": "2a30c033c1078eb2870289a7eda197fc65ea4cd75c91aaacd2d9fe412797d8b9",
+    "tests/test_evidence.py": "73de4a39c06ab284e21f07a569e0554594ca737fb99f021139bc537d636c664c",
+    "tests/test_integrity.py": "e8f744a3b916072b30545b87a565e5637ebfc7aa68b232bbf07951ef52004077",
+    "tests/test_protocol.py": "72d01dfa3e96bebb880590a87a9c9380a8024b985f05496f27a66fdeda3c510b",
+    "tests/test_proxy.py": "56199b3b684ae98e4614743dbf3d56e340dc4aa532ee36d8944118dfa8d3c772",
+    "tests/test_versions.py": "08e4e5bd406d79622d4afa06fade4d993226f2a898c21f93dce665df186df67c"
+  }
+}
