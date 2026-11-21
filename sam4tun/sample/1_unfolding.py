@@ -38,7 +38,7 @@ tunnel_id = sys.argv[1]
 
 
 params, param_file, family_mode = family_io.load_stage_params("unfolding")
-print(f"[unified] stage=unfolding family_mode={family_mode}")
+print(f"[case=sample] stage=unfolding")
 expected_keys = [
     "delta",
     "ransac_threshold", "ransac_probability", "ransac_inlier_ratio",
@@ -79,7 +79,7 @@ n_jobs = params["n_jobs"]
 swap_tunnel_centers = bool(params.get("swap_tunnel_centers", False))
                                                                            
                                                                         
-_use_top_tube = ("top_tube_radius" in params) or (family_mode == "complex")
+_use_top_tube = False
 top_tube_radius = float(params.get("top_tube_radius", 3.5))
 top_tube_top_n = int(params.get("top_tube_top_n", 10))
                                                                               
@@ -410,7 +410,7 @@ class RANSAC:
     def execute_ransac(self):
 
         start_time = time.time()
-        use_legacy = family_mode in ("staggered", "continuous")
+        use_legacy = True
         if use_legacy:
             while math.ceil(self.items):
                 select_points = self.random_sampling(self.N)

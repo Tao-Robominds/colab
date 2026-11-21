@@ -26,9 +26,10 @@ tunnel_id = sys.argv[1]
 
 
 from helpers import family_io
+from helpers import prompt_placement
 
 params, param_file, family_mode = family_io.load_stage_params("detecting")
-print(f"[unified] stage=detecting family_mode={family_mode}")
+print(f"[case=sample] stage=detecting")
 
 expected_keys = [
     "binary_threshold", "morphological_kernel_size", "dilation_iterations",
@@ -62,26 +63,17 @@ vertical_rho_mode = params.get("vertical_rho_mode", "max")
 vertical_rho_spacing_mm = float(params.get("vertical_rho_spacing_mm", 1200))
 vertical_rho_min_factor = float(params.get("vertical_rho_min_factor", 0.0))
 vertical_rho_max_factor = float(params.get("vertical_rho_max_factor", 5.0))
-prompt_logic = params.get("prompt_logic", "t12_pattern")
                                                                         
                                                                    
 prompt_extrapolate_px = int(params.get("prompt_extrapolate_px", 0))
 key_pair_max_sep_px = float(params.get("key_pair_max_sep_px", 2609))
-uniform_k_snap = bool(params.get("uniform_k_snap", False))
 _k_row_raw = params.get("k_row_pattern", [1123.0, 1553.0])
 k_row_pattern = [float(v) for v in _k_row_raw]
 k_row_tolerance = float(params.get("k_row_tolerance", 200.0))
 k_row_action = str(params.get("k_row_action", "snap")).lower()
 if k_row_action not in ("snap", "fail", "warn"):
     sys.exit(f"Invalid k_row_action={k_row_action!r}; expected snap|fail|warn")
-print(
-    f"unified detecting: K/AB={K_height}/{AB_height}, prompt_logic={prompt_logic}, "
-    f"vertical_rho_mode={vertical_rho_mode}, spacing_mm={vertical_rho_spacing_mm}, "
-    f"uniform_k_snap={uniform_k_snap}, "
-    f"k_row_action={k_row_action}, k_row_tolerance={k_row_tolerance}, "
-    f"prompt_extrapolate_px={prompt_extrapolate_px}, "
-    f"key_pair_max_sep_px={key_pair_max_sep_px}"
-)
+print(f"[case=sample] detecting")
 
 paths = ensure_dir(tunnel_id)
 state = load_state(paths["state"])
@@ -393,287 +385,21 @@ adjusted_points = []
 K_height_pixel = K_height / (1000 * resolution)
 AB_height_pixel = AB_height / (1000 * resolution)
 
-if prompt_logic == "t3_inherit":
-    for vertical_x, _ in vertical_lines:
-        intersections_with_positive_slope = []
-        intersections_with_negative_slope = []
-        intersections_with_horizontal = []
-        for segment in positive_slope_lines:
-            inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-            if inter_point:
-                intersections_with_positive_slope.append(inter_point)
-        for segment in negative_slope_lines:
-            inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-            if inter_point:
-                intersections_with_negative_slope.append(inter_point)
-        merge_positive = merge_close_points(intersections_with_positive_slope)
-        merge_negative = merge_close_points(intersections_with_negative_slope)
-        current_type = None
-        current_y = None
-        if len(merge_positive) > 0 and len(merge_negative) > 0:
-            midpoint = compute_midpoint(merge_positive[0], merge_negative[0])
-            current_y = midpoint[1]
-            current_type = 'midpoint'
-        elif len(merge_positive) > 0:
-            point = merge_positive[0]
-                                                           
-            current_y = point[1] - 0.5 * K_height_pixel
-            current_type = 'positive_slope'
-        elif len(merge_negative) > 0:
-            point = merge_negative[0]
-                                                           
-            current_y = point[1] + 0.5 * K_height_pixel
-            current_type = 'negative_slope'
-        else:
-            for segment in horizontal_lines:
-                inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-                if inter_point:
-                    intersections_with_horizontal.append(inter_point)
-            merge_horizontal = merge_close_points(intersections_with_horizontal)
-            if len(merge_horizontal) > 0:
-                min_y = min(merge_horizontal, key=lambda x: x[1])[1]
-                max_y = max(merge_horizontal, key=lambda x: x[1])[1]
-                current_y = (min_y + max_y) / 2
-                current_type = 'horizontal'
-            elif adjusted_points:
-                current_y = adjusted_points[-1][1][1]
-                current_type = 'assume'
-            else:
-                current_y = L * 0.5
-                current_type = 'assume'
-                print(f"Warning: no starting detection at x={vertical_x}; using image mid Y")
-        if adjusted_points and current_type != 'assume':
-            last_point_y = adjusted_points[-1][1][1]
-            if abs(current_y - last_point_y) / max(abs(last_point_y), 1e-6) > 0.1:
-                current_y = last_point_y
-                current_type = 'assume'
-        adjusted_points.append((current_type, (vertical_x, current_y)))
-elif prompt_logic == "notebook_12":
-                                                                                   
-                                                                                    
-    for vertical_x, _ in vertical_lines:
-        intersections_with_positive_slope = []
-        intersections_with_negative_slope = []
-        intersections_with_horizontal = []
-        for segment in positive_slope_lines:
-            inter_point = line_segment_vertical_intersection(
-                vertical_x, segment[0], prompt_extrapolate_px
-            )
-            if inter_point:
-                intersections_with_positive_slope.append(inter_point)
-        for segment in negative_slope_lines:
-            inter_point = line_segment_vertical_intersection(
-                vertical_x, segment[0], prompt_extrapolate_px
-            )
-            if inter_point:
-                intersections_with_negative_slope.append(inter_point)
-        merge_positive = merge_close_points(intersections_with_positive_slope)
-        merge_negative = merge_close_points(intersections_with_negative_slope)
-        pair = None
-        if len(merge_positive) > 0 and len(merge_negative) > 0:
-            if key_pair_max_sep_px >= 2609:
-                pair = (merge_positive[0], merge_negative[0])
-            else:
-                best_err = None
-                for pos_pt in merge_positive:
-                    for neg_pt in merge_negative:
-                        sep = abs(float(pos_pt[1]) - float(neg_pt[1]))
-                        if sep <= key_pair_max_sep_px:
-                            err = abs(sep - K_height_pixel)
-                            if best_err is None or err < best_err:
-                                best_err = err
-                                pair = (pos_pt, neg_pt)
-        if pair is not None:
-            midpoint = compute_midpoint(pair[0], pair[1])
-            adjusted_points.append(('midpoint', midpoint))
-        elif len(merge_positive) > 0:
-            point = merge_positive[0]
-            adjusted_points.append(('positive_slope', (point[0], point[1] - 0.5 * K_height_pixel)))
-        elif len(merge_negative) > 0:
-            point = merge_negative[0]
-            adjusted_points.append(('negative_slope', (point[0], point[1] + 0.5 * K_height_pixel)))
-        else:
-            for segment in horizontal_lines:
-                inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-                if inter_point:
-                    intersections_with_horizontal.append(inter_point)
-            merge_horizontal = merge_close_points(intersections_with_horizontal)
-            pattern_midpoint = check_distance_pattern(
-                merge_horizontal, K_height_pixel, AB_height_pixel, tolerance=pattern_tolerance
-            )
-            if pattern_midpoint:
-                adjusted_points.append(('horizontal', pattern_midpoint))
-            else:
-                assumed_y = None
-                if adjusted_points:
-                    last_point_y = adjusted_points[-1][1][1]
-                    if 1035 <= last_point_y <= 1265:
-                        assumed_y = last_point_y + 431.87
-                    elif 1422 <= last_point_y <= 1738:
-                        assumed_y = last_point_y - 431.87
-                    elif len(adjusted_points) > 1:
-                        second_last_point_y = adjusted_points[-2][1][1]
-                        if 1035 <= second_last_point_y <= 1265 or 1422 <= second_last_point_y <= 1738:
-                            assumed_y = second_last_point_y
-                if assumed_y is not None:
-                    adjusted_points.append(('assume', (vertical_x, assumed_y)))
-                else:
-                    adjusted_points.append(('assume', (vertical_x, 0)))
-else:
-    for vertical_x, _ in vertical_lines:
-        intersections_with_positive_slope = []
-        intersections_with_negative_slope = []
-        intersections_with_horizontal = []
-        for segment in positive_slope_lines:
-            inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-            if inter_point:
-                intersections_with_positive_slope.append(inter_point)
-        for segment in negative_slope_lines:
-            inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-            if inter_point:
-                intersections_with_negative_slope.append(inter_point)
-        merge_positive = merge_close_points(intersections_with_positive_slope)
-        merge_negative = merge_close_points(intersections_with_negative_slope)
-        if len(merge_positive) > 0 and len(merge_negative) > 0:
-            midpoint = compute_midpoint(merge_positive[0], merge_negative[0])
-            adjusted_points.append(('midpoint', midpoint))
-        elif len(merge_positive) > 0:
-            point = merge_positive[0]
-            adjusted_points.append(('positive_slope', (point[0], point[1] + 0.5 * K_height_pixel)))
-        elif len(merge_negative) > 0:
-            point = merge_negative[0]
-            adjusted_points.append(('negative_slope', (point[0], point[1] - 0.5 * K_height_pixel)))
-        else:
-            for segment in horizontal_lines:
-                inter_point = line_segment_vertical_intersection(vertical_x, segment[0])
-                if inter_point:
-                    intersections_with_horizontal.append(inter_point)
-            merge_horizontal = merge_close_points(intersections_with_horizontal)
-            pattern_midpoint = check_distance_pattern(
-                merge_horizontal, K_height_pixel, AB_height_pixel, tolerance=pattern_tolerance
-            )
-            if pattern_midpoint:
-                adjusted_points.append(('horizontal', pattern_midpoint))
-            else:
-                assumed_y = None
-                if adjusted_points:
-                    last_point_y = adjusted_points[-1][1][1]
-                    if 1035 <= last_point_y <= 1265:
-                        assumed_y = last_point_y + 431.87
-                    elif 1422 <= last_point_y <= 1738:
-                        assumed_y = last_point_y - 431.87
-                    else:
-                        if len(adjusted_points) > 1:
-                            second_last_point_y = adjusted_points[-2][1][1]
-                            if 1035 <= second_last_point_y <= 1265:
-                                assumed_y = second_last_point_y
-                            elif 1422 <= second_last_point_y <= 1738:
-                                assumed_y = second_last_point_y
-                if assumed_y is None:
-                    ring_idx = len(adjusted_points)
-                    assumed_y = 1123.0 if ring_idx % 2 == 0 else 1553.0
-                adjusted_points.append(('assume', (vertical_x, assumed_y)))
-
-if prompt_logic == "notebook_12" and prompt_extrapolate_px <= 0:
-                                                                               
-                                                                                    
-    _top = [pt[1] for _lab, pt in adjusted_points if 100 < pt[1] < 600]
-    if _top:
-        _fill = float(np.median(_top))
-        _n = 0
-        _fixed = []
-        for _lab, pt in adjusted_points:
-            if _lab == "assume" and pt[1] == 0:
-                _fixed.append((_lab, (pt[0], _fill)))
-                _n += 1
-            else:
-                _fixed.append((_lab, pt))
-        adjusted_points = _fixed
-        print(f"notebook_12 filled {_n} Y=0 prompts at Y={_fill:.1f}")
-
+adjusted_points = prompt_placement.place_prompts_on_alternating_rows(
+    vertical_lines,
+    positive_slope_lines,
+    negative_slope_lines,
+    horizontal_lines,
+    K_height_pixel,
+    AB_height_pixel,
+    pattern_tolerance,
+    L,
+    line_segment_vertical_intersection,
+    merge_close_points,
+    compute_midpoint,
+    check_distance_pattern,
+)
 k_row_gate_record = None
-if uniform_k_snap:
-    _ANCHOR_TYPES = {"midpoint", "horizontal", "positive_slope", "negative_slope"}
-    _anchor_ys = [pt[1] for label, pt in adjusted_points if label in _ANCHOR_TYPES]
-    if _anchor_ys:
-        y_star_measured = float(np.median(_anchor_ys))
-        if len(_anchor_ys) > 1 and np.std(_anchor_ys) > 40:
-            print(f"Warning: anchor Y std {np.std(_anchor_ys):.1f} > 40 before T3 uniform snap")
-                                                                               
-        nearest_row = float(min(k_row_pattern, key=lambda r: abs(r - y_star_measured)))
-        distance = float(abs(y_star_measured - nearest_row))
-        within = distance <= k_row_tolerance
-        y_star_used = y_star_measured
-        action_taken = "accept"
-        if within:
-            print(
-                f"T3 K-row gate OK: y_star={y_star_measured:.1f} within "
-                f"{distance:.1f}px of design row {nearest_row:.1f} "
-                f"(tol={k_row_tolerance:.1f})"
-            )
-        else:
-            msg = (
-                f"T3 K-row gate TRIGGERED: y_star={y_star_measured:.1f} is "
-                f"{distance:.1f}px from nearest design row {nearest_row:.1f} "
-                f"(tol={k_row_tolerance:.1f}, action={k_row_action})"
-            )
-            if k_row_action == "fail":
-                print(msg)
-                print(
-                    "Aborting stage 4 so the runner can retry with another seed. "
-                    "Exit code 3."
-                )
-                                                          
-                _gate_dir = os.path.dirname(paths["initial_points"])
-                os.makedirs(_gate_dir, exist_ok=True)
-                with open(os.path.join(_gate_dir, "k_row_gate.json"), "w") as _gf:
-                    json.dump(
-                        {
-                            "y_star_measured": y_star_measured,
-                            "y_star_used": None,
-                            "nearest_design_row": nearest_row,
-                            "distance_px": distance,
-                            "tolerance_px": k_row_tolerance,
-                            "k_row_pattern": k_row_pattern,
-                            "within_tolerance": False,
-                            "action_requested": k_row_action,
-                            "action_taken": "fail",
-                            "n_anchor_ys": len(_anchor_ys),
-                            "anchor_y_std": float(np.std(_anchor_ys)) if len(_anchor_ys) > 1 else 0.0,
-                        },
-                        _gf,
-                        indent=2,
-                    )
-                    _gf.write("\n")
-                sys.exit(3)
-            elif k_row_action == "snap":
-                y_star_used = nearest_row
-                action_taken = "snap"
-                print(msg)
-                print(f"T3 K-row gate SNAP: replacing y_star with {y_star_used:.1f}")
-            else:        
-                action_taken = "warn"
-                print(f"WARNING: {msg} — proceeding with measured y_star")
-
-        _n = len(adjusted_points)
-        adjusted_points = [
-            ("propagated", (pt[0], y_star_used))
-            for _, pt in adjusted_points
-        ]
-        print(f"T3 K uniform: set all {_n} rings to Y={y_star_used:.1f}")
-        k_row_gate_record = {
-            "y_star_measured": y_star_measured,
-            "y_star_used": y_star_used,
-            "nearest_design_row": nearest_row,
-            "distance_px": distance,
-            "tolerance_px": k_row_tolerance,
-            "k_row_pattern": k_row_pattern,
-            "within_tolerance": within,
-            "action_requested": k_row_action,
-            "action_taken": action_taken,
-            "n_anchor_ys": len(_anchor_ys),
-            "anchor_y_std": float(np.std(_anchor_ys)) if len(_anchor_ys) > 1 else 0.0,
-        }
 
 df_loc = pd.DataFrame(adjusted_points, columns=['Type', 'Coordinates'])
 df_loc['X'] = df_loc['Coordinates'].apply(lambda coord: coord[0])

@@ -30,6 +30,5 @@
   "vertical_rho_spacing_mm": 1850,
   "vertical_rho_min_factor": 2.0,
   "vertical_rho_max_factor": 5.0,
-  "prompt_logic": "t12_pattern",
   "uniform_k_snap": false
 }

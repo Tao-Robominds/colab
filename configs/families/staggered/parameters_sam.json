@@ -22,9 +22,7 @@
       4200,
       13100
     ],
-    "geometry_profile": "t12",
-    "mirror_k_geometry": false,
-    "segment_loop_extra": 0
+    "mirror_k_geometry": false
   },
   "prompt_points": {
     "k_block": {
@@ -104,7 +102,6 @@
       }
     }
   },
-  "geometry_profile": "t12",
   "mirror_k_geometry": false,
-  "segment_loop_extra": 0
+  "extra_ring_segments": 0
 }

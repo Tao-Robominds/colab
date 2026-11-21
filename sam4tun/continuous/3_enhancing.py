@@ -35,7 +35,7 @@ tunnel_id = sys.argv[1]
 from helpers import family_io
 
 params, param_file, family_mode = family_io.load_stage_params("enhancing")
-print(f"[unified] stage=enhancing family_mode={family_mode}")
+print(f"[case=continuous] stage=enhancing")
 denoise_params, _ = family_io.load_raw_params("denoising")
 depth_vmin = float(denoise_params.get("mask_r_low", 2.70))
 depth_vmax = float(denoise_params.get("mask_r_high", 2.80))

@@ -25,6 +25,5 @@
   "resolution": 0.005,
   "K_height": 1079.92,
   "AB_height": 3239.77,
-  "prompt_logic": "t12_pattern",
   "uniform_k_snap": false
 }

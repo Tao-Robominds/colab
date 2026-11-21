@@ -166,10 +166,12 @@ def run_full_pipeline(
     env["PROXY4TUN_OUT_ROOT"] = str(tune_root)
     env["PROXY4TUN_INPUT_TXT"] = str(scan_path)
     env["PROXY4TUN_PARAMS_DIR"] = str(params_dir)
-    env["PROXY4TUN_TUNNEL_META"] = str(root / "data/meta/tunnel_meta.json")
+    env["PROXY4TUN_TUNNEL_META"] = str(root / "configs/meta/tunnel_meta.json")
     env["PROXY4TUN_SUBSET"] = subset_id
+    case = "sample" if subset_id == "sample" else "staggered"
+    case_root = root / "sam4tun" / case
     env["PYTHONPATH"] = os.pathsep.join(
-        [str(root / "sam4tun"), str(root / "sam4tun/segment-anything"), env.get("PYTHONPATH", "")]
+        [str(case_root), str(root / "sam4tun/segment-anything"), env.get("PYTHONPATH", "")]
     )
     python = root / "venv/bin/python"
     exe = str(python) if python.is_file() else sys.executable
@@ -177,7 +179,7 @@ def run_full_pipeline(
     command = [
         exe,
         "-u",
-        str(root / "sam4tun" / "run_stages.py"),
+        str(case_root / "run_stages.py"),
         arm_name,
         "--out-root",
         str(tune_root),
@@ -208,7 +210,7 @@ def proud_replay(
     residual_mm: float = 5.0,
     radius_m: float = 0.10,
 ) -> Path:
-    sys.path[:0] = [str(root / "sam4tun")]
+    sys.path[:0] = [str(root / "sam4tun" / "staggered")]
     from helpers.proud_lining import drop_proud_lining
 
     if dest_dir.exists():

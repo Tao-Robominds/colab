@@ -21,7 +21,7 @@ from helpers import family_io
 tunnel_id = sys.argv[1]
 
 params, param_file, family_mode = family_io.load_stage_params("denoising")
-print(f"[unified] stage=denoising family_mode={family_mode}")
+print(f"[case=sample] stage=denoising")
 
 import numpy as np
 import pandas as pd

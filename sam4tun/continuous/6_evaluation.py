@@ -22,7 +22,7 @@ from helpers import family_io
 
 tunnel_id = sys.argv[1]
 family_mode = family_io.load_family_mode()
-print(f"[unified] stage=evaluation family_mode={family_mode}")
+print(f"[case=continuous] stage=evaluation")
 paths = ensure_dir(tunnel_id)
 
 test = pd.read_csv(paths["only_label"])

@@ -30,15 +30,13 @@ from segment_anything.utils.transforms import ResizeLongestSide
 from matplotlib.path import Path
 
 from helpers import family_io
-from helpers import t12_geometry
-from helpers import t3_geometry
-from helpers import t45_geometry
+from helpers import staggered_blocks as block_geometry
 from helpers.proud_lining import drop_proud_lining
 
 tunnel_id = sys.argv[1]
 
 config, param_file, family_mode = family_io.load_stage_params("sam")
-print(f"[unified] stage=sam family_mode={family_mode}")
+print(f"[case=sample] stage=sam")
 expected_keys = [
     "segment_per_ring", "segment_width", "K_height", "AB_height", "angle", "processing",
 ]
@@ -56,20 +54,15 @@ padding = processing["padding"]
 crop_margin = processing["crop_margin"]
 y_bounds = processing["y_bounds"]
 y_exceptions_offsets = processing.get("y_exceptions_offsets", [])
-geometry_profile = config.get("geometry_profile", "t45")
 mirror_k_geometry = bool(config.get("mirror_k_geometry", False))
 template_scale = float(config.get("template_scale", 1.0))
-segment_loop_extra = int(config.get("segment_loop_extra", 1))
-crop_taper_mm = float(config.get("crop_taper_mm", 1000 if geometry_profile == "t45" else 700))
-print(
-    f"unified SAM: geometry_profile={geometry_profile}, mirror_k={mirror_k_geometry}, "
-    f"template_scale={template_scale}, "
-    f"loop_extra={segment_loop_extra}, crop_taper_mm={crop_taper_mm}, y_bounds={y_bounds}"
-)
+extra_ring_segments = int(config.get("extra_ring_segments", config.get("segment_loop_extra", 0)))
+crop_taper_mm = float(config.get("crop_taper_mm", 700))
+print(f"[case=sample] SAM extra_ring_segments={extra_ring_segments}, crop_taper_mm={crop_taper_mm}, y_bounds={y_bounds}")
 
                                                                              
 _use_geometric_fallback = (
-    (family_mode == "complex")
+    False
     and segment_per_ring == 7
     and bool(config.get("use_geometric_fallback", True))
 )
@@ -179,12 +172,7 @@ def generate_template_mask(height, width, prompt_centre, block, resolution=0.005
     x = prompt_centre_x * (resolution*1000)
     y = prompt_centre_y * (resolution*1000)
 
-    if geometry_profile == "t45":
-        vertices_real = t45_geometry.template_vertices_mm(x, y, block)
-    elif geometry_profile == "t3":
-        vertices_real = t3_geometry.template_vertices_mm(x, y, block)
-    else:                   
-        vertices_real = t12_geometry.template_vertices_mm(x, y, block)
+    vertices_real = block_geometry.template_vertices_mm(x, y, block)
     if block == 'K' and _mirror_k_geometry:
         vertices_real = _mirror_real_x_about_center(vertices_real, x)
     if template_scale != 1.0:
@@ -204,191 +192,30 @@ def generate_prompt_points(prompt_centre, initial_x, map_y, block, resolution,
     y = prompt_centre_y * (resolution*1000)
     map_y_mm = map_y * (resolution*1000)
 
-    if geometry_profile == "t45":
-                                                                                      
-        points_real, labels = t45_geometry.prompt_points_mm(x, y, block)
-        if block == 'K' and _mirror_k_geometry:
-            points_real = _mirror_real_x_about_center(points_real, x)
-        points = points_real / (resolution * 1000)
-        within_bounds = (points[:, 0] >= 0) & (
-            (points[:, 0] + initial_x - (segment_width * 0.5 + padding) / (resolution * 1000)) <= image.shape[1]
-        )
-        points = points[within_bounds]
-        labels = labels[within_bounds]
-        return points, labels
+    points_real, labels = block_geometry.prompt_points_mm(x, y, block)
+    if block == "K" and _mirror_k_geometry:
+        points_real = _mirror_real_x_about_center(points_real, x)
 
-    if geometry_profile == "t3":
-                                                                             
-        points_real, labels = t3_geometry.prompt_points_mm(x, y, block)
-        if block == 'K' and _mirror_k_geometry:
-            points_real = _mirror_real_x_about_center(points_real, x)
-        for i in range(len(labels)):
-            if labels[i] == 0:
-                y_cond = points_real[i, 1] + map_y_mm < y_bounds[0] or points_real[i, 1] + map_y_mm > y_bounds[1]
-                x_cond = abs(points_real[i, 0] - x) <= segment_width * 0.5
-                y_limit = K_height if block == 'K' else AB_height
-                y_cond2 = abs(points_real[i, 1] - y) <= y_limit * 0.5
-                y_exceptions = [y + float(off) for off in y_exceptions_offsets]
-                y_exception_cond = points_real[i, 1] not in y_exceptions
-                if y_cond and x_cond and y_cond2 and y_exception_cond:
-                    labels[i] = 1
-        points = points_real / (resolution * 1000)
-        within_bounds = (points[:, 0] >= 0) & (
-            (points[:, 0] + initial_x - (segment_width * 0.5 + padding) / (resolution * 1000)) <= image.shape[1]
-        )
-        points = points[within_bounds]
-        labels = labels[within_bounds]
-        return points, labels
-
-                                                                              
-    map_y = map_y_mm
-    
-    if block == 'K':
-        points_real = np.array([
-            [x-700,y-732.35],[x-700,y-505.96],[x-700,y-310.91],[x-700,y],[x-700,y+310.91],[x-700,y+505.96],[x-700,y+732.35],
-            [x-500,y-705.96],[x-500,y+705.96],
-            [x-348.16,y-685.91],[x-348.16,y-310.91],[x-325,y],[x-348.16,y+310.91],[x-348.16,y+685.91],
-            [x,y-639.96],[x,y],[x,y+639.96],
-            [x+348.16,y-594.01],[x+348.16,y-219.01],[x+325,y],[x+348.16,y+219.01],[x+348.16,y+594.01],
-            [x+500,y-573.96],[x+500,y+573.96],
-            [x+700,y-547.57],[x+700,y-373.96],[x+700,y-219.01],[x+700,y],[x+700,y+219.01],[x+700,y+373.96],[x+700,y+547.57],                      
-
-            [x-500,y-505.96],[x-511.06,y-310.91],[x-500,y],[x-511.06,y+310.91],[x-500,y+505.96],
-            [x-348.16,y-485.91],[x-348.16,y+485.91],
-            [x,y-439.96],[x,y+439.96],
-            [x+348.16,y-394.01],[x+348.16,y+394.01],
-            [x+500,y-373.96],[x+511.06,y-219.01],[x+500,y],[x+511.06,y+219.01],[x+500,y+373.96]
-        ])
-        if _mirror_k_geometry:
-            points_real = _mirror_real_x_about_center(points_real, x)
-        labels = np.repeat([0, 1], [31, 16])
-
-    elif block == 'B1':
-        points_real = np.array([
-            [x-700,y-1719.89],[x-511.06,y-1719.89],[x-348.16,y-1719.89],[x,y-1719.89],[x+348.16,y-1719.89],[x+511.06,y-1719.89],[x+700,y-1719.89],
-            [x-700,y-1519.89],[x+700,y-1519.89],
-            [x-700,y-1344.89],[x-348.16,y-1344.89],[x+348.16,y-1344.89],[x+700,y-1344.89],
-            [x-700,y-1090.09],[x-325,y-1090.09],[x+325,y-1090.09],[x+700,y-1090.09],
-            [x-700,y-817.57],[x+700,y-817.57],
-            [x-700,y-545.05],[x+700,y-545.05],
-            [x-700,y-272.52],[x+700,y-272.52],
-            [x-700,y],[x-325,y],[x,y],[x+325,y],[x+700,y],
-            [x-700,y+272.52],[x+700,y+272.52],
-            [x-700,y+545.05],[x+700,y+545.05],
-            [x-700,y+817.57],[x+700,y+817.57],
-            [x-700,y+1090.09],[x-325,y+1090.09],[x+325,y+1090.09],[x+700,y+1090.09],
-            [x-700,y+1298.93],[x-350,y+1298.93],[x+350,y+1390.84],[x+700,y+1390.84],
-            [x-700,y+1427.43],[x+700,y+1612.28],
-            [x-700,y+1627.49],[x-511.06,y+1652.43],[x-350,y+1673.69],[x,y+1719.89],[x+350,y+1766.08],[x+511.06,y+1787.34],[x+700,y+1812.28],
-
-            [x-511.06,y-1519.89],[x-348.16,y-1519.89],[x,y-1519.89],[x+348.16,y-1519.89],[x+511.06,y-1519.89],
-            [x-511.06,y-1344.89],[x,y-1344.89],[x+511.06,y-1344.89],
-            [x-500,y-1090.09],[x,y-1090.09],[x+500,y-1090.09],
-            [x-500,y-817.57],[x-250,y-817.57],[x,y-817.57],[x+250,y-817.57],[x+500,y-817.57],
-            [x-500,y-545.05],[x-250,y-545.05],[x,y-545.05],[x+250,y-545.05],[x+500,y-545.05],
-            [x-500,y-272.52],[x-250,y-272.52],[x,y-272.52],[x+250,y-272.52],[x+500,y-272.52],
-            [x-500,y],[x-162.5,y],[x+162.5,y],[x+500,y],
-            [x-500,y+272.52],[x-250,y+272.52],[x,y+272.52],[x+250,y+272.52],[x+500,y+272.52],
-            [x-500,y+545.05],[x-250,y+545.05],[x,y+545.05],[x+250,y+545.05],[x+500,y+545.05],
-            [x-500,y+817.57],[x-250,y+817.57],[x,y+817.57],[x+250,y+817.57],[x+500,y+817.57],
-            [x-500,y+1090.09],[x,y+1090.09],[x+500,y+1090.09],
-            [x-511.06,y+1298.93],[x,y+1345.01],[x+511.06,y+1390.84],
-            [x-511.06,y+1452.43],[x-350,y+1473.69],[x,y+1519.89],[x+350,y+1566.08],[x+511.06,y+1587.34]      
-        ])
-        labels = np.repeat([0,1],[51,56])
-
-    elif block == 'B2':
-        points_real = np.array([
-            [x-700,y-1627.49],[x-511.06,y-1652.43],[x-350,y-1673.69],[x,y-1719.89],[x+350,y-1766.08],[x+511.06,y-1787.34],[x+700,y-1812.28],
-            [x-700,y-1427.43],[x+700,y-1612.28],
-            [x-700,y-1298.93],[x-350,y-1298.93],[x+350,y-1390.84],[x+700,y-1390.84],            
-            [x-700,y-1090.09],[x-325,y-1090.09],[x+325,y-1090.09],[x+700,y-1090.09],
-            [x-700,y-817.57],[x+700,y-817.57],
-            [x-700,y-545.05],[x+700,y-545.05],
-            [x-700,y-272.52],[x+700,y-272.52],
-            [x-700,y],[x-325,y],[x,y],[x+325,y],[x+700,y],
-            [x-700,y+272.52],[x+700,y+272.52],
-            [x-700,y+545.05],[x+700,y+545.05],
-            [x-700,y+817.57],[x+700,y+817.57],
-            [x-700,y+1090.09],[x-325,y+1090.09],[x+325,y+1090.09],[x+700,y+1090.09],
-            [x-700,y+1344.89],[x-348.16,y+1344.89],[x+348.16,y+1344.89],[x+700,y+1344.89],
-            [x-700,y+1519.89],[x+700,y+1519.89],
-            [x-700,y+1719.89],[x-511.06,y+1719.89],[x-348.16,y+1719.89],[x,y+1719.89],[x+348.16,y+1719.89],[x+511.06,y+1719.89],[x+700,y+1719.89],
-
-            [x-511.06,y-1452.43],[x-350,y-1473.69],[x,y-1519.89],[x+350,y-1566.08],[x+511.06,y-1587.34],     
-            [x-511.06,y-1298.93],[x,y-1345.01],[x+511.06,y-1390.84],
-            [x-500,y-1090.09],[x,y-1090.09],[x+500,y-1090.09],
-            [x-500,y-817.57],[x-250,y-817.57],[x,y-817.57],[x+250,y-817.57],[x+500,y-817.57],
-            [x-500,y-545.05],[x-250,y-545.05],[x,y-545.05],[x+250,y-545.05],[x+500,y-545.05],
-            [x-500,y-272.52],[x-250,y-272.52],[x,y-272.52],[x+250,y-272.52],[x+500,y-272.52],
-            [x-500,y],[x-162.5,y],[x+162.5,y],[x+500,y],
-            [x-500,y+272.52],[x-250,y+272.52],[x,y+272.52],[x+250,y+272.52],[x+500,y+272.52],
-            [x-500,y+545.05],[x-250,y+545.05],[x,y+545.05],[x+250,y+545.05],[x+500,y+545.05],
-            [x-500,y+817.57],[x-250,y+817.57],[x,y+817.57],[x+250,y+817.57],[x+500,y+817.57],
-            [x-500,y+1090.09],[x,y+1090.09],[x+500,y+1090.09],
-            [x-511.06,y+1344.89],[x,y+1344.89],[x+511.06,y+1344.89],
-            [x-511.06,y+1519.89],[x-348.16,y+1519.89],[x,y+1519.89],[x+348.16,y+1519.89],[x+511.06,y+1519.89],
-        ])
-        labels = np.repeat([0,1],[51,56])
-            
-    else:
-        points_real = np.array([
-            [x-700,y-1719.89],[x-511.06,y-1719.89],[x-348.16,y-1719.89],[x,y-1719.89],[x+348.16,y-1719.89],[x+511.06,y-1719.89],[x+700,y-1719.89],
-            [x-700,y-1519.89],[x+700,y-1519.89],
-            [x-700,y-1344.89],[x-348.16,y-1344.89],[x+348.16,y-1344.89],[x+700,y-1344.89],
-            [x-700,y-1090.09],[x-325,y-1090.09],[x+325,y-1090.09],[x+700,y-1090.09],
-            [x-700,y-817.57],[x+700,y-817.57],
-            [x-700,y-545.05],[x+700,y-545.05],
-            [x-700,y-272.52],[x+700,y-272.52],
-            [x-700,y],[x-325,y],[x,y],[x+325,y],[x+700,y],
-            [x-700,y+272.52],[x+700,y+272.52],
-            [x-700,y+545.05],[x+700,y+545.05],
-            [x-700,y+817.57],[x+700,y+817.57],
-            [x-700,y+1090.09],[x-325,y+1090.09],[x+325,y+1090.09],[x+700,y+1090.09],
-            [x-700,y+1344.89],[x-348.16,y+1344.89],[x+348.16,y+1344.89],[x+700,y+1344.89],
-            [x-700,y+1519.89],[x+700,y+1519.89],
-            [x-700,y+1719.89],[x-511.06,y+1719.89],[x-348.16,y+1719.89],[x,y+1719.89],[x+348.16,y+1719.89],[x+511.06,y+1719.89],[x+700,y+1719.89],
-
-            [x-511.06,y-1519.89],[x-348.16,y-1519.89],[x,y-1519.89],[x+348.16,y-1519.89],[x+511.06,y-1519.89],
-            [x-511.06,y-1344.89],[x,y-1344.89],[x+511.06,y-1344.89],
-            [x-500,y-1090.09],[x,y-1090.09],[x+500,y-1090.09],
-            [x-500,y-817.57],[x-250,y-817.57],[x,y-817.57],[x+250,y-817.57],[x+500,y-817.57],
-            [x-500,y-545.05],[x-250,y-545.05],[x,y-545.05],[x+250,y-545.05],[x+500,y-545.05],
-            [x-500,y-272.52],[x-250,y-272.52],[x,y-272.52],[x+250,y-272.52],[x+500,y-272.52],
-            [x-500,y],[x-162.5,y],[x+162.5,y],[x+500,y],
-            [x-500,y+272.52],[x-250,y+272.52],[x,y+272.52],[x+250,y+272.52],[x+500,y+272.52],
-            [x-500,y+545.05],[x-250,y+545.05],[x,y+545.05],[x+250,y+545.05],[x+500,y+545.05],
-            [x-500,y+817.57],[x-250,y+817.57],[x,y+817.57],[x+250,y+817.57],[x+500,y+817.57],
-            [x-500,y+1090.09],[x,y+1090.09],[x+500,y+1090.09],
-            [x-511.06,y+1344.89],[x,y+1344.89],[x+511.06,y+1344.89],
-            [x-511.06,y+1519.89],[x-348.16,y+1519.89],[x,y+1519.89],[x+348.16,y+1519.89],[x+511.06,y+1519.89],
-        ])
-        labels = np.repeat([0,1],[51,56])
-
-                                                                           
     keep_mask = np.ones(len(labels), dtype=bool)
     for i in range(len(labels)):
         if labels[i] == 0:
-            y_cond = points_real[i, 1] + map_y < y_bounds[0] or points_real[i, 1] + map_y > y_bounds[1]
+            y_cond = points_real[i, 1] + map_y_mm < y_bounds[0] or points_real[i, 1] + map_y_mm > y_bounds[1]
             x_cond = abs(points_real[i, 0] - x) <= segment_width * 0.5
-            y_limit = K_height if block == 'K' else AB_height
+            y_limit = K_height if block == "K" else AB_height
             y_cond2 = abs(points_real[i, 1] - y) <= y_limit * 0.5
-            
             if y_cond and x_cond and y_cond2:
                 keep_mask[i] = False
-            
+
     points_real = points_real[keep_mask]
     labels = labels[keep_mask]
-    
     points = points_real / (resolution*1000)
-
-                                   
-    within_bounds = (points[:, 0] >= 0) & ((points[:, 0] + initial_x - (segment_width*0.5+padding)/(resolution*1000)) <= image.shape[1])
+    within_bounds = (points[:, 0] >= 0) & (
+        (points[:, 0] + initial_x - (segment_width*0.5+padding)/(resolution*1000)) <= image.shape[1]
+    )
     points = points[within_bounds]
     labels = labels[within_bounds]
-        
     return points, labels
-                                
+
 def convert_to_pixel_coords(real_dist, resolution=0.005):
     return int(real_dist / (resolution*1000))
 
@@ -548,7 +375,7 @@ def process_row(df_row, image, resolution, segment_per_ring, segment_width,
     block_label_index = 0
 
     results = []
-    for i in range(segment_per_ring + segment_loop_extra):
+    for i in range(segment_per_ring + extra_ring_segments):
         if reverse == False:
             block = block_labels[block_label_index]
             if block_label_index == 0:

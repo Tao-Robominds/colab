@@ -6,9 +6,9 @@
       "sha256": "ff1f906edc8921568174de5fd36f8c6dfec716fe94b090b076f7dd83d2f0438b"
     },
     {
-      "bytes": 806,
+      "bytes": 773,
       "path": "configs/families/complex/parameters_detecting.json",
-      "sha256": "d969828dc5b8b173f44f9f67694f09000709f99b284a9c9c60f615c0bf32f933"
+      "sha256": "f6342369fd04325a8558ed461698558060fc1ef571d9ae4639454de10b68fdba"
     },
     {
       "bytes": 609,
@@ -21,9 +21,9 @@
       "sha256": "c06a366e5feaa951db6d4a8ccb6e5f11858ae34af9d4601526f95df30b36daab"
     },
     {
-      "bytes": 527,
+      "bytes": 499,
       "path": "configs/families/complex/parameters_sam.json",
-      "sha256": "2601c0981a2e61d313b6475bacfe149e6ccff3ed5661580ba5376a49cd97ffbc"
+      "sha256": "d36ac214b10610b60317a94a6d0533814864f97828d13eef28b53184ef1e5d68"
     },
     {
       "bytes": 600,
@@ -36,9 +36,9 @@
       "sha256": "c8894e34e397f9967f437490c1e27b7a3e94801601ec98b1d56a627483038740"
     },
     {
-      "bytes": 862,
+      "bytes": 830,
       "path": "configs/families/continuous/parameters_detecting.json",
-      "sha256": "d345d3f9cb3c31e19efc8cf629336d889b74529962ec57f55c81b0badc70ba2d"
+      "sha256": "5bb3d349ecce0372e0dceaed77293e96d42a64e1897253850c0f5da46f8c1d0c"
     },
     {
       "bytes": 602,
@@ -51,9 +51,9 @@
       "sha256": "772e3fbe9e267ce4da7927eca498fc92660a9b196ec7388b8a130e9e9f23b4f3"
     },
     {
-      "bytes": 595,
+      "bytes": 568,
       "path": "configs/families/continuous/parameters_sam.json",
-      "sha256": "1a8e270f2c8827df41ad37f108a8e53896383d81d7ea540d3c9a57f2b8a1eb30"
+      "sha256": "f07ae30170f27f852d8fb74a664fd2103ad34287a8c4e49e0ac6fdac2751d111"
     },
     {
       "bytes": 676,
@@ -61,9 +61,9 @@
       "sha256": "c584a65891d8917e3d07e262f2c88a09fd911379b188024784149c367226f3df"
     },
     {
-      "bytes": 193,
+      "bytes": 197,
       "path": "configs/families/sample/parameters_denoising.json",
-      "sha256": "5affbd822947868a0abdad121513097d67ffa49fc7d0ea5e614349cb7b7b4d24"
+      "sha256": "9f5ef5a2876e1a6597f6716b86498b5313e21f7bebab199a0b15e33d323cf29c"
     },
     {
       "bytes": 526,
@@ -81,9 +81,9 @@
       "sha256": "c2414aa564bff1408340f7b70a441d8b248eda72c851661972cda34422d8c22d"
     },
     {
-      "bytes": 2095,
+      "bytes": 2174,
       "path": "configs/families/sample/parameters_sam.json",
-      "sha256": "1709abdd7696718dd4a1c4e9cf8ba9ada33ed864a4f1e3babe10e2d12e5f0202"
+      "sha256": "37ed1e401f83cffc5a4d922f50a80191f47bb8f7b6a24759e5ef10200439b280"
     },
     {
       "bytes": 490,
@@ -96,9 +96,9 @@
       "sha256": "6fcc709e4e4a2bfcd81614e293f391434a28f6d2429083a4189aa2c9ab82f42c"
     },
     {
-      "bytes": 634,
+      "bytes": 601,
       "path": "configs/families/staggered/parameters_detecting.json",
-      "sha256": "9d5cc9d0a523b663d60762760bbe5a6ab5cf84029d883c14ee262cd9217c56ac"
+      "sha256": "fcb38c052a327e17117647b3b155fc9e66e5d680e4eb2eec884da1fe4177039d"
     },
     {
       "bytes": 461,
@@ -111,9 +111,9 @@
       "sha256": "4b2ff3a0b5691dbd65df555212cdc8132e71d3680a395229401d55e68db26e76"
     },
     {
-      "bytes": 2274,
+      "bytes": 2186,
       "path": "configs/families/staggered/parameters_sam.json",
-      "sha256": "b6a784b32773dcad59857c63baae9b8715985a831200a1d768e947001bde706d"
+      "sha256": "5f59b55afb06a04ac084e168d541c6235ec91031da9fb9cae560cddfc5cfc81a"
     },
     {
       "bytes": 490,
@@ -127,46 +127,288 @@
       "inner_diameter_m",
       "ring_length_m",
       "ring_count",
-      "orientation_xy"
+      "orientation_xy",
+      "segment_count",
+      "k_layout"
     ],
     "tunnel_meta_gt_derived": false,
     "scan_columns": 6
   },
   "pipeline": [
     {
-      "bytes": 36147,
-      "path": "sam4tun/1_unfolding.py",
-      "sha256": "f781e78c9d1cfb0fa624906314c8363a63f42f5036c1a45b636f9808abefcf0f"
-    },
-    {
-      "bytes": 6913,
-      "path": "sam4tun/2_denoising.py",
-      "sha256": "a70fa99498f79be816279b90b8de17f383ecfceb9ee07c33d2901201e03c990a"
-    },
-    {
-      "bytes": 24175,
-      "path": "sam4tun/3_enhancing.py",
-      "sha256": "8950ab98d030b5881cea7b9e494a31678e2efa3b15c5fb0bbf9fed8519258bb5"
-    },
-    {
-      "bytes": 32450,
-      "path": "sam4tun/4_detection.py",
-      "sha256": "1d63f1aff5898958335d4971232f2725bb9a6f178ccb53f2a0d6c443cb3467df"
-    },
-    {
-      "bytes": 38561,
-      "path": "sam4tun/5_sam.py",
-      "sha256": "8b348db8af8aea3f3037e56cf947b5e42eb6d213035ccb8be360a4d5db1146ed"
-    },
-    {
-      "bytes": 15120,
-      "path": "sam4tun/6_evaluation.py",
-      "sha256": "31d4b1f75334cbf50920a93af6dfff540db216c0ad3fd3cadd0bcf5df2b66f7a"
-    },
-    {
-      "bytes": 2053,
+      "bytes": 2463,
       "path": "sam4tun/run_stages.py",
-      "sha256": "af7f54258a4a78d15c9480daf538f6f9770fbea1ac6202066650e9adf7b8f3f7"
+      "sha256": "950336af0fa4dd1a71ba0853cdcdf39c11c72aaf60b1859f1abd65f6d6ddad58"
+    },
+    {
+      "bytes": 2420,
+      "path": "sam4tun/sample/run_stages.py",
+      "sha256": "91e2a16fdfe74398deac49fa0331a86ed21505fef18db7b3fac4e61bc9425f42"
+    },
+    {
+      "bytes": 36033,
+      "path": "sam4tun/sample/1_unfolding.py",
+      "sha256": "970767e28182ef5b7d9a0ad6588cd1df4d8d45c9cfff67178da68151b643835a"
+    },
+    {
+      "bytes": 6891,
+      "path": "sam4tun/sample/2_denoising.py",
+      "sha256": "b522ed143a4767f896d7f0c56deb17fdca4a9384bece71abb1a7a167aa516402"
+    },
+    {
+      "bytes": 24153,
+      "path": "sam4tun/sample/3_enhancing.py",
+      "sha256": "5e75a6ed734360df8aae416ba4d4d142986dfbe4e73f58f9ee947f0cb18056b5"
+    },
+    {
+      "bytes": 18180,
+      "path": "sam4tun/sample/4_detection.py",
+      "sha256": "f9c67d668b1566a298fd8f63ac13af7591ae27e009b2677811b2c59a3b69b64a"
+    },
+    {
+      "bytes": 28979,
+      "path": "sam4tun/sample/5_sam.py",
+      "sha256": "5f39ac8dabde7434e6fb2222c5df5f23b0ff8192c8d6f0fda56bfe9c3fb6589c"
+    },
+    {
+      "bytes": 15098,
+      "path": "sam4tun/sample/6_evaluation.py",
+      "sha256": "cf9d46eb67bd3f8ddc12d39a15a18c46022cab44a6b8611b7efa291cd6b4c0d6"
+    },
+    {
+      "bytes": 2968,
+      "path": "sam4tun/sample/helpers/design_blueprint.py",
+      "sha256": "af2af6802c82231343cdde0ca7e3e5dca9538e1a650b46a7e6d61df9142cdfeb"
+    },
+    {
+      "bytes": 2668,
+      "path": "sam4tun/sample/helpers/family_io.py",
+      "sha256": "c6f43f77055e7350f9f03379fe05eb9a3218d5075c0ef7ab595815bf49fa3c3d"
+    },
+    {
+      "bytes": 3714,
+      "path": "sam4tun/sample/helpers/pipeline_io.py",
+      "sha256": "0139e364a88f397764c11bfd73042ac1ec99f0b3b64a6f1e0f1c96376b79793f"
+    },
+    {
+      "bytes": 387,
+      "path": "sam4tun/sample/helpers/pipeline_state.py",
+      "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
+    },
+    {
+      "bytes": 3387,
+      "path": "sam4tun/sample/helpers/prompt_placement.py",
+      "sha256": "5b0a5fb7986bb4c85fa608056babe10ee800ac46e986511df41bb5112cbbf20a"
+    },
+    {
+      "bytes": 1575,
+      "path": "sam4tun/sample/helpers/proud_lining.py",
+      "sha256": "c831970e87e24d729b4e77730933ad93b144ca242788b093123867db98a571a3"
+    },
+    {
+      "bytes": 8779,
+      "path": "sam4tun/sample/helpers/staggered_blocks.py",
+      "sha256": "64f0ae041f68e74b0a6ff8ef62a082ef8ee94fb80c34ab73f53b11bb5a7d858f"
+    },
+    {
+      "bytes": 2426,
+      "path": "sam4tun/staggered/run_stages.py",
+      "sha256": "4e1d936fdf7d7528babb0fe1f096f8f2f2662d579cf49d0fdfb9dc4a08dd4331"
+    },
+    {
+      "bytes": 36036,
+      "path": "sam4tun/staggered/1_unfolding.py",
+      "sha256": "dea69c4b3c0a9e284db86e4b7afd3901382102f44d49041191eabc3bbbec2512"
+    },
+    {
+      "bytes": 6894,
+      "path": "sam4tun/staggered/2_denoising.py",
+      "sha256": "5e2135b4baea62a2d91e9842e48f82a7dbb9ea2b19f3eed372be7f311dc89181"
+    },
+    {
+      "bytes": 24156,
+      "path": "sam4tun/staggered/3_enhancing.py",
+      "sha256": "9cc52b8131be394a27bd5a2ccf195befe2e53d77664f40e1da51769ec68cedae"
+    },
+    {
+      "bytes": 18186,
+      "path": "sam4tun/staggered/4_detection.py",
+      "sha256": "e60021cd6fd013742a9e488cff1aa03385eef3ffae03ea85bb45ec277563292e"
+    },
+    {
+      "bytes": 28985,
+      "path": "sam4tun/staggered/5_sam.py",
+      "sha256": "13afe0d5ef2832959db98d239ff04075628c373ef3378f8008a405616b6f11e0"
+    },
+    {
+      "bytes": 15101,
+      "path": "sam4tun/staggered/6_evaluation.py",
+      "sha256": "5ad6c11f6a9430f52bfb0b1e7108efb8b2223218eeb0fdd9830794ce784a0a3a"
+    },
+    {
+      "bytes": 2971,
+      "path": "sam4tun/staggered/helpers/design_blueprint.py",
+      "sha256": "fdc734da71fe04791715ea23e0d24d32e230a6e7a34117854f50b5909b30dba7"
+    },
+    {
+      "bytes": 2674,
+      "path": "sam4tun/staggered/helpers/family_io.py",
+      "sha256": "5f87773a9fcb81c9d90bbc0478b827badab84c6d5c30b455b7cb416816e3ec03"
+    },
+    {
+      "bytes": 3714,
+      "path": "sam4tun/staggered/helpers/pipeline_io.py",
+      "sha256": "0139e364a88f397764c11bfd73042ac1ec99f0b3b64a6f1e0f1c96376b79793f"
+    },
+    {
+      "bytes": 387,
+      "path": "sam4tun/staggered/helpers/pipeline_state.py",
+      "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
+    },
+    {
+      "bytes": 3387,
+      "path": "sam4tun/staggered/helpers/prompt_placement.py",
+      "sha256": "5b0a5fb7986bb4c85fa608056babe10ee800ac46e986511df41bb5112cbbf20a"
+    },
+    {
+      "bytes": 1575,
+      "path": "sam4tun/staggered/helpers/proud_lining.py",
+      "sha256": "c831970e87e24d729b4e77730933ad93b144ca242788b093123867db98a571a3"
+    },
+    {
+      "bytes": 8779,
+      "path": "sam4tun/staggered/helpers/staggered_blocks.py",
+      "sha256": "64f0ae041f68e74b0a6ff8ef62a082ef8ee94fb80c34ab73f53b11bb5a7d858f"
+    },
+    {
+      "bytes": 2428,
+      "path": "sam4tun/continuous/run_stages.py",
+      "sha256": "ad12985b65a57ecf988b34e1aaaff316a2acfcce2fa75ffec661dc0c71f1f74b"
+    },
+    {
+      "bytes": 36037,
+      "path": "sam4tun/continuous/1_unfolding.py",
+      "sha256": "1b66d9c70185ae9eb07375fa50b330208f7a4d4183bd55ad07f36f8e9ca0b728"
+    },
+    {
+      "bytes": 6895,
+      "path": "sam4tun/continuous/2_denoising.py",
+      "sha256": "edaa9f3cc378a89ebad8a49df7006f26796341c314f2f126fe6779c3043a4cbe"
+    },
+    {
+      "bytes": 24157,
+      "path": "sam4tun/continuous/3_enhancing.py",
+      "sha256": "6252a67bcb61f78f5048248845d086dec92bd723c2b8102214c4213c89151d3a"
+    },
+    {
+      "bytes": 18342,
+      "path": "sam4tun/continuous/4_detection.py",
+      "sha256": "da6c897ea2d393d9a9ec1d06b905b751124778a0de0ab45b5b8ea17cdca7aaf5"
+    },
+    {
+      "bytes": 28302,
+      "path": "sam4tun/continuous/5_sam.py",
+      "sha256": "37b1fa88b0a566d05be2a298e0a93985b9a257e0deaf32fb026542a1a2907d6d"
+    },
+    {
+      "bytes": 15102,
+      "path": "sam4tun/continuous/6_evaluation.py",
+      "sha256": "d92eacd6544c9987fc016825be6b39c83d430e0cca0970af7f6d265b767a7b5e"
+    },
+    {
+      "bytes": 13699,
+      "path": "sam4tun/continuous/helpers/continuous_blocks.py",
+      "sha256": "679f21519e2cb20648105cd42fb4b0823c8cee4216fd1e222729777701e56c15"
+    },
+    {
+      "bytes": 2966,
+      "path": "sam4tun/continuous/helpers/design_blueprint.py",
+      "sha256": "f17d1e2a24ec42cb2c98ef2dfdcb8bf5109d5dc9887a1a832ce44537d6123045"
+    },
+    {
+      "bytes": 2675,
+      "path": "sam4tun/continuous/helpers/family_io.py",
+      "sha256": "886a92e4f5267b8da740cf3f50caf81f99a9d0bc504f8ffce34f0313f6a330ae"
+    },
+    {
+      "bytes": 3714,
+      "path": "sam4tun/continuous/helpers/pipeline_io.py",
+      "sha256": "0139e364a88f397764c11bfd73042ac1ec99f0b3b64a6f1e0f1c96376b79793f"
+    },
+    {
+      "bytes": 387,
+      "path": "sam4tun/continuous/helpers/pipeline_state.py",
+      "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
+    },
+    {
+      "bytes": 6612,
+      "path": "sam4tun/continuous/helpers/prompt_placement.py",
+      "sha256": "11dff58cbaeb880d107b1183da253165464303217e80f369dfe87844a6af9343"
+    },
+    {
+      "bytes": 2422,
+      "path": "sam4tun/complex/run_stages.py",
+      "sha256": "0f6dd79b27e74225077629d68a1c41ba9146eb1eea8e3472b26b49fd37eba04e"
+    },
+    {
+      "bytes": 36034,
+      "path": "sam4tun/complex/1_unfolding.py",
+      "sha256": "4bf5acf4af1ad60c46334d53c280c43d3810324d2f1c977320dafa3cce526fe3"
+    },
+    {
+      "bytes": 6892,
+      "path": "sam4tun/complex/2_denoising.py",
+      "sha256": "0ffb80a97c137d5b5d24d478ea4f82e5c23d39888c861ffc9cb3a91a3d8290c4"
+    },
+    {
+      "bytes": 24154,
+      "path": "sam4tun/complex/3_enhancing.py",
+      "sha256": "cdd90ff8c0b57061a8f45c87ff70d0cd338d7e5003faf498088111b5bef1943c"
+    },
+    {
+      "bytes": 18182,
+      "path": "sam4tun/complex/4_detection.py",
+      "sha256": "a92e7bdb5873f567c6c9fec6d0bba45e85d2249ff572e34541320d89c48aa1a7"
+    },
+    {
+      "bytes": 27641,
+      "path": "sam4tun/complex/5_sam.py",
+      "sha256": "7ba6b4a51ac95a3ebd4feccf7813e18a1770208151899f846fe5752af4d46d65"
+    },
+    {
+      "bytes": 15099,
+      "path": "sam4tun/complex/6_evaluation.py",
+      "sha256": "2b6fd74c2332c2930ad6893edf0168b70d3417cadb458a9107cd53a149337936"
+    },
+    {
+      "bytes": 11739,
+      "path": "sam4tun/complex/helpers/complex_blocks.py",
+      "sha256": "10a4d715c6ebe040bdcd020cf95ed0413a93ae639a6a85455e432b43d10c5d0a"
+    },
+    {
+      "bytes": 2961,
+      "path": "sam4tun/complex/helpers/design_blueprint.py",
+      "sha256": "cee73a0b3ceb47908cbffc6c9ffe504707a5945d05fb8e8ac225a9c3fda3bf12"
+    },
+    {
+      "bytes": 2714,
+      "path": "sam4tun/complex/helpers/family_io.py",
+      "sha256": "998eda4a76cf999eb74f93b3ef68c94d0728bad0d7068bdc9d3a71f8858ef5dd"
+    },
+    {
+      "bytes": 3714,
+      "path": "sam4tun/complex/helpers/pipeline_io.py",
+      "sha256": "0139e364a88f397764c11bfd73042ac1ec99f0b3b64a6f1e0f1c96376b79793f"
+    },
+    {
+      "bytes": 387,
+      "path": "sam4tun/complex/helpers/pipeline_state.py",
+      "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
+    },
+    {
+      "bytes": 3387,
+      "path": "sam4tun/complex/helpers/prompt_placement.py",
+      "sha256": "5b0a5fb7986bb4c85fa608056babe10ee800ac46e986511df41bb5112cbbf20a"
     }
   ],
   "python": {
@@ -186,44 +428,154 @@
   },
   "sam4tun_helpers": [
     {
-      "bytes": 1,
-      "path": "sam4tun/helpers/__init__.py",
-      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      "bytes": 0,
+      "path": "sam4tun/sample/helpers/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "bytes": 1835,
-      "path": "sam4tun/helpers/design_blueprint.py",
-      "sha256": "d76002b57242a3e01f967f88b9c084673b1bf39daa91a1247ea600e1cfe3c363"
+      "bytes": 2968,
+      "path": "sam4tun/sample/helpers/design_blueprint.py",
+      "sha256": "af2af6802c82231343cdde0ca7e3e5dca9538e1a650b46a7e6d61df9142cdfeb"
     },
     {
-      "bytes": 4103,
-      "path": "sam4tun/helpers/family_io.py",
-      "sha256": "bc2fcd4e1c82cb3ece46407ef319f8ce5c5f44ca4e8f411100b14264de78c898"
+      "bytes": 2668,
+      "path": "sam4tun/sample/helpers/family_io.py",
+      "sha256": "c6f43f77055e7350f9f03379fe05eb9a3218d5075c0ef7ab595815bf49fa3c3d"
     },
     {
-      "bytes": 3388,
-      "path": "sam4tun/helpers/pipeline_io.py",
-      "sha256": "2f3007d01c6f7b828f9a176bafca6c97e05b89212bf98574561046b637c06d4c"
+      "bytes": 3714,
+      "path": "sam4tun/sample/helpers/pipeline_io.py",
+      "sha256": "0139e364a88f397764c11bfd73042ac1ec99f0b3b64a6f1e0f1c96376b79793f"
     },
     {
       "bytes": 387,
-      "path": "sam4tun/helpers/pipeline_state.py",
+      "path": "sam4tun/sample/helpers/pipeline_state.py",
       "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
     },
     {
+      "bytes": 3387,
+      "path": "sam4tun/sample/helpers/prompt_placement.py",
+      "sha256": "5b0a5fb7986bb4c85fa608056babe10ee800ac46e986511df41bb5112cbbf20a"
+    },
+    {
+      "bytes": 1575,
+      "path": "sam4tun/sample/helpers/proud_lining.py",
+      "sha256": "c831970e87e24d729b4e77730933ad93b144ca242788b093123867db98a571a3"
+    },
+    {
       "bytes": 8779,
-      "path": "sam4tun/helpers/t12_geometry.py",
+      "path": "sam4tun/sample/helpers/staggered_blocks.py",
       "sha256": "64f0ae041f68e74b0a6ff8ef62a082ef8ee94fb80c34ab73f53b11bb5a7d858f"
     },
     {
+      "bytes": 0,
+      "path": "sam4tun/staggered/helpers/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2971,
+      "path": "sam4tun/staggered/helpers/design_blueprint.py",
+      "sha256": "fdc734da71fe04791715ea23e0d24d32e230a6e7a34117854f50b5909b30dba7"
+    },
+    {
+      "bytes": 2674,
+      "path": "sam4tun/staggered/helpers/family_io.py",
+      "sha256": "5f87773a9fcb81c9d90bbc0478b827badab84c6d5c30b455b7cb416816e3ec03"
+    },
+    {
+      "bytes": 3714,
+      "path": "sam4tun/staggered/helpers/pipeline_io.py",
+      "sha256": "0139e364a88f397764c11bfd73042ac1ec99f0b3b64a6f1e0f1c96376b79793f"
+    },
+    {
+      "bytes": 387,
+      "path": "sam4tun/staggered/helpers/pipeline_state.py",
+      "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
+    },
+    {
+      "bytes": 3387,
+      "path": "sam4tun/staggered/helpers/prompt_placement.py",
+      "sha256": "5b0a5fb7986bb4c85fa608056babe10ee800ac46e986511df41bb5112cbbf20a"
+    },
+    {
+      "bytes": 1575,
+      "path": "sam4tun/staggered/helpers/proud_lining.py",
+      "sha256": "c831970e87e24d729b4e77730933ad93b144ca242788b093123867db98a571a3"
+    },
+    {
+      "bytes": 8779,
+      "path": "sam4tun/staggered/helpers/staggered_blocks.py",
+      "sha256": "64f0ae041f68e74b0a6ff8ef62a082ef8ee94fb80c34ab73f53b11bb5a7d858f"
+    },
+    {
+      "bytes": 0,
+      "path": "sam4tun/continuous/helpers/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
       "bytes": 13699,
-      "path": "sam4tun/helpers/t3_geometry.py",
+      "path": "sam4tun/continuous/helpers/continuous_blocks.py",
       "sha256": "679f21519e2cb20648105cd42fb4b0823c8cee4216fd1e222729777701e56c15"
     },
     {
+      "bytes": 2966,
+      "path": "sam4tun/continuous/helpers/design_blueprint.py",
+      "sha256": "f17d1e2a24ec42cb2c98ef2dfdcb8bf5109d5dc9887a1a832ce44537d6123045"
+    },
+    {
+      "bytes": 2675,
+      "path": "sam4tun/continuous/helpers/family_io.py",
+      "sha256": "886a92e4f5267b8da740cf3f50caf81f99a9d0bc504f8ffce34f0313f6a330ae"
+    },
+    {
+      "bytes": 3714,
+      "path": "sam4tun/continuous/helpers/pipeline_io.py",
+      "sha256": "0139e364a88f397764c11bfd73042ac1ec99f0b3b64a6f1e0f1c96376b79793f"
+    },
+    {
+      "bytes": 387,
+      "path": "sam4tun/continuous/helpers/pipeline_state.py",
+      "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
+    },
+    {
+      "bytes": 6612,
+      "path": "sam4tun/continuous/helpers/prompt_placement.py",
+      "sha256": "11dff58cbaeb880d107b1183da253165464303217e80f369dfe87844a6af9343"
+    },
+    {
+      "bytes": 0,
+      "path": "sam4tun/complex/helpers/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
       "bytes": 11739,
-      "path": "sam4tun/helpers/t45_geometry.py",
+      "path": "sam4tun/complex/helpers/complex_blocks.py",
       "sha256": "10a4d715c6ebe040bdcd020cf95ed0413a93ae639a6a85455e432b43d10c5d0a"
+    },
+    {
+      "bytes": 2961,
+      "path": "sam4tun/complex/helpers/design_blueprint.py",
+      "sha256": "cee73a0b3ceb47908cbffc6c9ffe504707a5945d05fb8e8ac225a9c3fda3bf12"
+    },
+    {
+      "bytes": 2714,
+      "path": "sam4tun/complex/helpers/family_io.py",
+      "sha256": "998eda4a76cf999eb74f93b3ef68c94d0728bad0d7068bdc9d3a71f8858ef5dd"
+    },
+    {
+      "bytes": 3714,
+      "path": "sam4tun/complex/helpers/pipeline_io.py",
+      "sha256": "0139e364a88f397764c11bfd73042ac1ec99f0b3b64a6f1e0f1c96376b79793f"
+    },
+    {
+      "bytes": 387,
+      "path": "sam4tun/complex/helpers/pipeline_state.py",
+      "sha256": "5b89d0787ad7f07ae480ca52ce733688488b9ae662dc7cd03d2cfe1c72e2f33b"
+    },
+    {
+      "bytes": 3387,
+      "path": "sam4tun/complex/helpers/prompt_placement.py",
+      "sha256": "5b0a5fb7986bb4c85fa608056babe10ee800ac46e986511df41bb5112cbbf20a"
     }
   ],
   "segment_anything": {
@@ -262,8 +614,8 @@
     }
   ],
   "meta": {
-    "bytes": 4943,
-    "path": "data/meta/tunnel_meta.json",
-    "sha256": "37a6e2fe1992a1a4f1d0b658e95a44158dca57599b2bbbb9e289e4299f5d8998"
+    "bytes": 6694,
+    "path": "configs/meta/tunnel_meta.json",
+    "sha256": "0948b6de8dfbbae65a6f78b7f1d174a34228dc62b7cbe8d8b1d5f357af014544"
   }
 }

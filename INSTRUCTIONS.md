@@ -16,10 +16,9 @@ Real SAM4Tun stages:
 export PROXY4TUN_OUT_ROOT="$PWD/data/development/sample"
 export PROXY4TUN_INPUT_TXT="$PWD/data/scans/sample.txt"
 export PROXY4TUN_PARAMS_DIR="$PWD/configs/families/sample"
-export PROXY4TUN_TUNNEL_META="$PWD/data/meta/tunnel_meta.json"
+export PROXY4TUN_TUNNEL_META="$PWD/configs/meta/tunnel_meta.json"
 export PROXY4TUN_SUBSET="sample"
-export PYTHONPATH="$PWD/sam4tun:$PWD/sam4tun/segment-anything"
-./venv/bin/python sam4tun/run_stages.py baseline --out-root "$PROXY4TUN_OUT_ROOT" --input "$PROXY4TUN_INPUT_TXT"
+./venv/bin/python sam4tun/run_stages.py baseline --case sample --out-root "$PROXY4TUN_OUT_ROOT" --input "$PROXY4TUN_INPUT_TXT"
 ```
 
 Owned Python under `src/` and `tests/` stays free of comments and docstrings. Experiment-learned notes live under `dikw/knowledge/`; directory location alone does not accept a claim.
@@ -252,10 +251,10 @@ The RST and demonstration summary records carry `synthetic: true` and `learning_
 | --- | --- |
 | `src/rsi4tun/` | Contracts, adapters, evidence, proxy, diagnosis, orchestrator, versions, records, researcher, evaluation, quality, demo, cli |
 | `configs/` | Comparison policies, evidence contract, protocol, verification digests, family parameter packs |
-| `sam4tun/` | Parameterized stages 1–6, helpers, Segment Anything, ViT-H weight |
+| `sam4tun/` | Case-specific stages 1–6, shared Segment Anything weights |
 | `venv/` | Local Python environment with CUDA torch |
 | `data/scans/` | Six-column labelled scans |
-| `data/meta/` | Tunnel design-blueprint metadata |
+| `configs/meta/` | Tunnel design-blueprint metadata |
 | `data/development/` | Development run outputs |
 | `data/deployment/` | Deployment run outputs |
 | `dikw/data/` | Experiment data summaries |
@@ -274,9 +273,9 @@ An accepted release identifies the complete code revision and its exact tree. Ev
 
 ### Data layout
 
-Scans live under `data/scans/` with six fields: coordinates, intensity, semantic label, and ring index. Stage scripts read only the columns they need (`usecols`). Shared tunnel meta lives under `data/meta/`. Development and deployment run outputs go under `data/development/` and `data/deployment/`.
+Scans live under `data/scans/` with six fields: coordinates, intensity, semantic label, and ring index. Stage scripts read only the columns they need (`usecols`). Tunnel blueprints live under `configs/meta/`. Development and deployment run outputs go under `data/development/` and `data/deployment/`.
 
-`tunnel_meta.json` holds design-blueprint fields only: inner diameter, ring length, ring count, and orientation. It is keyed by subset id. Stage 1 loads these through `sam4tun/helpers/design_blueprint.py` and uses them for diameter, slicing ring count, ring-length checks, and drive orientation.
+`tunnel_meta.json` holds design-blueprint fields: inner diameter, ring length, ring count, orientation, segment count, and K layout. It is keyed by subset id. Stage 1 loads these through the case `helpers/design_blueprint.py` and uses them for diameter, slicing ring count, ring-length checks, drive orientation, and case matching.
 
 ### Runtime pins
 

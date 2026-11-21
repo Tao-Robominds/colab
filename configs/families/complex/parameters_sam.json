@@ -13,9 +13,7 @@
   "K_height": 1226.97,
   "AB_height": 3726.88,
   "angle": 9.8,
-  "geometry_profile": "t45",
   "mirror_k_geometry": false,
-  "segment_loop_extra": 1,
   "crop_taper_mm": 1000,
   "use_original_label_distributions": true,
   "processing": {
@@ -27,5 +25,6 @@
       4200,
       13100
     ]
-  }
+  },
+  "extra_ring_segments": 1
 }

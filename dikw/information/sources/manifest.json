@@ -6,7 +6,7 @@
     "sam4tun",
     "configs/families",
     "data/scans",
-    "data/meta/tunnel_meta.json"
+    "configs/meta/tunnel_meta.json"
   ],
   "approved_scientific_claims": [],
   "synthetic_examples_learning_eligible": false

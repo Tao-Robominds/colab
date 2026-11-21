@@ -29,7 +29,6 @@
   "vertical_rho_mode": "band",
   "vertical_rho_min_factor": 14.0,
   "vertical_rho_max_factor": 15.2,
-  "prompt_logic": "t3_inherit",
   "uniform_k_snap": true,
   "k_row_pattern": [
     1123.0,
