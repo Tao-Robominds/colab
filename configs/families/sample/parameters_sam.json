@@ -9,7 +9,7 @@
     "B2"
   ],
   "segment_width": 1200,
-  "K_height": 1079.92,
+  "K_height": 1120,
   "AB_height": 3239.77,
   "angle": 7.52,
   "use_original_label_distributions": true,
@@ -100,5 +100,8 @@
         "height": 1619.89
       }
     }
-  }
+  },
+  "mirror_k_geometry": true,
+  "proud_radius_m": 0.10,
+  "proud_residual_mm": 5
 }

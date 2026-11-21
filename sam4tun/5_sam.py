@@ -33,6 +33,7 @@ from helpers import family_io
 from helpers import t12_geometry
 from helpers import t3_geometry
 from helpers import t45_geometry
+from helpers.proud_lining import drop_proud_lining
 
 tunnel_id = sys.argv[1]
 
@@ -57,10 +58,12 @@ y_bounds = processing["y_bounds"]
 y_exceptions_offsets = processing.get("y_exceptions_offsets", [])
 geometry_profile = config.get("geometry_profile", "t45")
 mirror_k_geometry = bool(config.get("mirror_k_geometry", False))
+template_scale = float(config.get("template_scale", 1.0))
 segment_loop_extra = int(config.get("segment_loop_extra", 1))
 crop_taper_mm = float(config.get("crop_taper_mm", 1000 if geometry_profile == "t45" else 700))
 print(
     f"unified SAM: geometry_profile={geometry_profile}, mirror_k={mirror_k_geometry}, "
+    f"template_scale={template_scale}, "
     f"loop_extra={segment_loop_extra}, crop_taper_mm={crop_taper_mm}, y_bounds={y_bounds}"
 )
 
@@ -184,6 +187,9 @@ def generate_template_mask(height, width, prompt_centre, block, resolution=0.005
         vertices_real = t12_geometry.template_vertices_mm(x, y, block)
     if block == 'K' and _mirror_k_geometry:
         vertices_real = _mirror_real_x_about_center(vertices_real, x)
+    if template_scale != 1.0:
+        center = np.array([x, y], dtype=np.float64)
+        vertices_real = center + template_scale * (vertices_real - center)
 
     vertices = vertices_real / (resolution*1000)
         
@@ -855,6 +861,22 @@ def project_back_to_point_cloud(segmented_map, instance_map, pixel_to_point, df)
 
     return df_copy
 updated_df = project_back_to_point_cloud(result_image, fix_ring, pixel_to_point, df_point_cloud)
+proud_residual_mm = float(config.get("proud_residual_mm", 0.0))
+proud_radius_m = float(config.get("proud_radius_m", 0.10))
+if proud_residual_mm > 0.0:
+    labels_before = updated_df["pred"].to_numpy()
+    updated_df["pred"] = drop_proud_lining(
+        updated_df["h"].to_numpy(),
+        updated_df["theta"].to_numpy(),
+        updated_df["r"].to_numpy(),
+        labels_before,
+        proud_radius_m,
+        proud_residual_mm / 1000.0,
+    )
+    dropped = int(((labels_before >= 1) & (labels_before <= 6) & (updated_df["pred"].to_numpy() == 0)).sum())
+    print(
+        f"proud lining drop: radius_m={proud_radius_m}, residual_mm={proud_residual_mm}, dropped={dropped}"
+    )
 updated_df.head()
 updated_df.to_csv(paths["final_csv"],index=False)
 df_pred = pd.DataFrame()
