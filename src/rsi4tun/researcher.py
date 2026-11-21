@@ -34,7 +34,7 @@ def build_context(comparison: dict, signals: tuple[CandidateSignal, ...], *,
     if any(signal.target != OBJECTIVE or signal.status != "unvalidated" for signal in signals):
         raise ValueError("invalid_candidate_signal_status")
     context = ResearchContext(OBJECTIVE, comparison, signals, proxy_digest, code_revision,
-                              retrieve_claims(claim_registry, scope_id), "dikw/knowledge/evidence_contract.md",
+                              retrieve_claims(claim_registry, scope_id), "configs/evidence_contract.md",
                               budget_full_runs, public_source_refs, propose_proxy(signals, proxy_digest) if signals else None)
     require_gt_free(asdict(context))
     return context

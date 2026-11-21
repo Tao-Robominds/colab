@@ -1,4 +1,7 @@
 # DIKW data
 
-Experiment summaries at the data level will be stored here.
+Experiment observation summaries and daily synthesis logs.
 
+| Path | Role |
+| --- | --- |
+| `logs/` | Daily DIKW synthesis logs (not wisdom) |

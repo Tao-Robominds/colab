@@ -7,7 +7,7 @@ name = "rsi4tun-executable-evidence"
 version = "0.3.0"
 requires-python = ">=3.11"
 dependencies = []
-readme = "dikw/knowledge/README.md"
+readme = "INSTRUCTIONS.md"
 
 [project.scripts]
 rsi4tun = "rsi4tun.cli:main"
