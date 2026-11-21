@@ -32,3 +32,10 @@ Family `sample`, scan `data/scans/sample.txt`.
 - Formula: [`sample_proxy.json`](sample_proxy.json)
 
 The formula was refit after the radius experiment. `t29` and `t30` are the new rows. It is a development fit. It is not accepted wisdom.
+
+Family `staggered`, scan `data/scans/1-1.txt`.
+
+- Strategy: [`1_1_tune_strategy.md`](1_1_tune_strategy.md)
+- Formula: [`1_1_proxy.json`](1_1_proxy.json)
+
+The formula was fit on the 1-1 arms. It is a development fit. It is not accepted wisdom. It does not replace the sample prior.

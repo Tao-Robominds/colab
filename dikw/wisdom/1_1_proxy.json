@@ -1,0 +1,43 @@
+{
+  "proxy_id": "1_1_tune_v1",
+  "target": "final_3d_semantic_miou",
+  "status": "development_fit_pending",
+  "scope": {
+    "family": "staggered",
+    "scan": "data/scans/1-1.txt",
+    "case_id": "1-1",
+    "group_id": "1-1"
+  },
+  "feature_ids": [
+    "k_wedge",
+    "angle_positive",
+    "ab_rel_error",
+    "proud_cut"
+  ],
+  "centres": [
+    0.7857142857142857,
+    1.0,
+    0.0,
+    0.7857142857142857
+  ],
+  "scales": [
+    0.41032590332414487,
+    1e-08,
+    1e-08,
+    0.41032590332414487
+  ],
+  "weights": [
+    0.012924505149119591,
+    0.0,
+    0.0,
+    0.016617127420529353
+  ],
+  "intercept": 0.8205714285714285,
+  "evidence_contract_digest": "1-1-tune-proxy-v1",
+  "backend": "1_1_tune",
+  "validation_receipt": "development_fit_pending",
+  "fit_rows_digest": "59bea2594f1824ce26b18c0633c16a0e342c10fef98cd304a08a66c519fae3e9",
+  "n_rows": 14,
+  "equation": "clip(intercept + sum(weight_i * (x_i - centre_i) / scale_i), 0, 1)",
+  "notes": "Development fit on scan 1-1. Not accepted wisdom."
+}

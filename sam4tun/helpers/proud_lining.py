@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.spatial import cKDTree
 
+QUERY_CHUNK = 256
+
 
 def drop_proud_lining(h, theta, radius, pred, neighbourhood_m, residual_m):
     pred = np.asarray(pred).copy()
@@ -21,15 +23,18 @@ def drop_proud_lining(h, theta, radius, pred, neighbourhood_m, residual_m):
     values = np.concatenate([radius[lining], radius[lining], radius[lining]])
     tree = cKDTree(stacked)
     count = len(lining)
-    neighbours = tree.query_ball_point(xy, neighbourhood_m)
-    for index, found in enumerate(neighbours):
-        others = [
-            values[item]
-            for item in found
-            if item != index and item != index + count and item != index + 2 * count
-        ]
-        if not others:
-            continue
-        if radius[lining[index]] - float(np.median(others)) > residual_m:
-            pred[lining[index]] = 0
+    lining_radius = radius[lining]
+    for start in range(0, count, QUERY_CHUNK):
+        stop = min(start + QUERY_CHUNK, count)
+        batches = tree.query_ball_point(xy[start:stop], neighbourhood_m, return_sorted=False)
+        for offset, found in enumerate(batches):
+            index = start + offset
+            if len(found) <= 1:
+                continue
+            ids = np.fromiter(found, dtype=np.int64, count=len(found))
+            keep = (ids != index) & (ids != index + count) & (ids != index + 2 * count)
+            if not keep.any():
+                continue
+            if lining_radius[index] - float(np.median(values[ids[keep]])) > residual_m:
+                pred[lining[index]] = 0
     return pred

@@ -6,4 +6,5 @@ Organised experiment context.
 | --- | --- |
 | `sources/` | Provenance of environment assets and external references |
 | `sample_tune.md` | What the sample trials held fixed, and which comparisons are valid |
+| `1_1_tune.md` | What the 1-1 arms held fixed, and which comparisons are valid |
 

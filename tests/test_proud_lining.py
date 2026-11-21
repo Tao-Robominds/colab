@@ -1,4 +1,5 @@
 import sys
+import tracemalloc
 import unittest
 from pathlib import Path
 
@@ -36,6 +37,22 @@ class ProudLiningTests(unittest.TestCase):
         self.assertEqual(int(out[0]), 0)
         self.assertEqual(int(out[1]), 1)
         self.assertEqual(int(out[2]), 1)
+
+    def test_dense_neighbourhood_does_not_hold_every_pair(self):
+        count = 2500
+        h = np.linspace(0.0, 0.04, count)
+        theta = np.zeros(count)
+        radius = np.full(count, 2.75)
+        radius[2000] = 2.80
+        pred = np.ones(count, dtype=int)
+        tracemalloc.start()
+        out = drop_proud_lining(h, theta, radius, pred, 0.10, 0.005)
+        _, peak = tracemalloc.get_traced_memory()
+        tracemalloc.stop()
+        self.assertLess(peak, 64 * 1024 * 1024)
+        self.assertEqual(int(out[2000]), 0)
+        self.assertEqual(int(out[0]), 1)
+        self.assertEqual(int(out[-1]), 1)
 
     def test_ignores_background_neighbours(self):
         h = np.array([0.0, 0.02, 0.04])
