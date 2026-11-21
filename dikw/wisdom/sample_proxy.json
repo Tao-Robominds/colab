@@ -1,0 +1,44 @@
+{
+  "proxy_id": "sample_tune_v1",
+  "target": "final_3d_semantic_miou",
+  "status": "development_fit_pending",
+  "scope": {
+    "family": "sample",
+    "scan": "data/scans/sample.txt",
+    "case_id": "sample",
+    "group_id": "sample"
+  },
+  "feature_ids": [
+    "k_wedge",
+    "angle_positive",
+    "ab_rel_error",
+    "proud_cut"
+  ],
+  "centres": [
+    0.9032258064516129,
+    0.9354838709677419,
+    0.0009956899568836378,
+    0.03225806451612903
+  ],
+  "scales": [
+    0.29565004483586066,
+    0.24567010018915833,
+    0.0038753767579722135,
+    0.17668469596940842
+  ],
+  "weights": [
+    0.0024528310182343896,
+    0.14812564946203693,
+    -0.0067261958740775585,
+    0.003248818286768108
+  ],
+  "intercept": 0.8427741935483871,
+  "evidence_contract_digest": "sample-tune-proxy-v1",
+  "backend": "sample_tune",
+  "validation_receipt": "development_fit_pending",
+  "fit_rows_digest": "3148458b4697dfe8e03bf30550c9a968b13d9bc8b548ea81db7b36e979f032c6",
+  "n_rows": 31,
+  "in_sample_mae": 0.015429815582053082,
+  "equation": "clip(intercept + sum(weight_i * (x_i - centre_i) / scale_i), 0, 1)",
+  "notes": "Refit after t29 and t30. proud_cut is 1 only on t30. accepted_wisdom stays empty until a grouped release."
+}

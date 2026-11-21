@@ -1,13 +1,34 @@
 # Wisdom
 
-Actionable principles synthesised from tested knowledge.
+A wisdom item is an ordered strategy plus a fitted formula.
 
-Promote an item only when evidence and executable support justify it. Directory location alone does not accept a principle.
+The strategy names each step, states a numeric prediction, states the rationale, and states the stop. The formula holds the coefficients. A paragraph does not stand in for the weights.
+
+Promote an item only when evidence and executable support justify it. Directory location alone does not accept a principle. An item stays out of `configs/protocol.json` `accepted_wisdom` until a later grouped release.
+
+## What belongs here
+
+- An ordered strategy with a prediction and a rationale on every step.
+- A fitted formula with centres, scales, weights, and intercept.
+- A stated scope: which family, which scan, which fit rows.
+- Known stops and failed levers from the same experience.
+
+## What does not belong here
+
+- Trial narratives and daily logs. Those stay under `dikw/data/logs/`.
+- Working notes and open explanations. Those stay under `dikw/knowledge/`.
+- Hand-picked weights described as learned.
+- A released gate. A prior with receipt `development_fit_pending` is not a released proxy.
 
 ## Standing principles
 
 _None accepted yet._
 
-## First proxy prior
+## Current prior
 
-For the sample scan, judge changes by mean IoU. Carry the K-wedge check and the AB-height check. Refuse a higher K-block score, or a higher background score, as a substitute. See `first_proxy_prior.md`.
+Family `sample`, scan `data/scans/sample.txt`.
+
+- Strategy: [`sample_tune_strategy.md`](sample_tune_strategy.md)
+- Formula: [`sample_proxy.json`](sample_proxy.json)
+
+The formula was refit after the radius experiment. `t29` and `t30` are the new rows. It is a development fit. It is not accepted wisdom.
