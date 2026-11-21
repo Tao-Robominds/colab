@@ -21,7 +21,7 @@ export PROXY4TUN_SUBSET="sample"
 ./venv/bin/python sam4tun/run_stages.py baseline --case sample --out-root "$PROXY4TUN_OUT_ROOT" --input "$PROXY4TUN_INPUT_TXT"
 ```
 
-Owned Python under `src/` and `tests/` stays free of comments and docstrings. Experiment-learned notes live under `dikw/knowledge/`; directory location alone does not accept a claim.
+Owned Python under `src/` and `tests/` stays free of comments and docstrings. Provisional explanatory notes live under `dikw/information/research_notes/`; tested claims live under `dikw/knowledge/`. Directory location alone does not accept a claim.
 
 ## Architecture
 
@@ -144,7 +144,7 @@ These rules specify research discipline for executable evidence work; they do no
 
 This workspace uses **Research State Transition (RST)** as a working name for the record connecting a registered research state to its observed outcome and next action. This expansion defines the local schema; it does not assert that an attached article uses the same acronym.
 
-An RST record preserves evidence and decisions. It is not a transcript of internal reasoning, a natural-language substitute for code, or an automatic knowledge claim. Keep explanatory text in `dikw/knowledge/` and link it through `knowledge_ref`. Keep full code in the immutable source revisions that the record names.
+An RST record preserves evidence and decisions. It is not a transcript of internal reasoning, a natural-language substitute for code, or an automatic knowledge claim. Keep explanatory text in `dikw/information/research_notes/` and link it through `knowledge_ref`. Keep full code in the immutable source revisions that the record names.
 
 `records.py` implements an immutable before record and a separate after record. `preregister_and_execute` in `orchestrator.py` seals the plan before starting the actual versioned arm runs, binds the registration receipt, and rejects pre-existing output directories and protected-evaluator changes. `verify_preregistration` checks both record and plan digests. `append_outcome` links the result to that before record, checks the planned arm commits, and creates a new file without overwriting the previous one.
 
@@ -243,7 +243,7 @@ Run the demo into a new output directory. The following paths are relative to th
 
 Use these generated files for their real hashes and commits. The documentation never supplies fabricated hash strings as verified evidence. The deployment process must not use the private post-hoc audit file to choose a treatment.
 
-The RST and demonstration summary records carry `synthetic: true` and `learning_eligible: false`. Stage artefacts identify the `synthetic` backend. The knowledge gate rejects fixture evidence. The synthetic explanatory note is [here](dikw/knowledge/research_notes/synthetic_example.md).
+The RST and demonstration summary records carry `synthetic: true` and `learning_eligible: false`. Stage artefacts identify the `synthetic` backend. The knowledge gate rejects fixture evidence. The synthetic explanatory note is [here](dikw/information/research_notes/synthetic_example.md).
 
 ## Workspace map
 
@@ -258,8 +258,8 @@ The RST and demonstration summary records carry `synthetic: true` and `learning_
 | `data/development/` | Development run outputs |
 | `data/deployment/` | Deployment run outputs |
 | `dikw/data/` | Experiment data summaries |
-| `dikw/information/` | Organised experiment information and source provenance |
-| `dikw/knowledge/` | Hypotheses, claims, and provisional research notes |
+| `dikw/information/` | Organised experiment information, source provenance, and provisional research notes |
+| `dikw/knowledge/` | Hypotheses and claims |
 | `dikw/wisdom/` | Standing principles synthesised from tested knowledge |
 | `dikw/data/logs/` | Daily DIKW synthesis logs (not wisdom) |
 | `tests/` | Evidence, validation, protocol, integrity, and source-version tests |
@@ -293,7 +293,7 @@ Start with the current complete run, its verified stage artefacts, the reference
 
 Identify a concrete measured discrepancy. Cite the artefact identity, comparison feature, executable extractor and code revision. Distinguish missing observations, representation loss, implementation failure, and a legitimate change in tunnel design. Do not turn an incompatible reference into an accuracy judgement.
 
-Propose at most a small registered set of candidate signals. Give each signal an executable definition, input artefacts, units, valid scope, missing-value rule, target rationale and a plausible way to improve it without improving final mIoU. Put this explanation in a versioned document under `dikw/knowledge/`. Return the document reference and machine-readable identifiers to the controller.
+Propose at most a small registered set of candidate signals. Give each signal an executable definition, input artefacts, units, valid scope, missing-value rule, target rationale and a plausible way to improve it without improving final mIoU. Put this explanation in a versioned document under `dikw/information/research_notes/`. Return the document reference and machine-readable identifiers to the controller.
 
 Candidate signals must exist in a verified comparison report before diagnosis. A new transformation requires new extractor code and a newly computed report. Do not propose an unmeasured name and treat it as an observation. A candidate signal is not a validated gate. Development must calibrate and validate any new acceptance proxy.
 
@@ -311,10 +311,10 @@ Commit complete proposed revisions. Seal predictions and comparison identities b
 
 Preserve failed runs, null results, rejected interventions and contradictions. State whether the result supports one response model, both, neither, or cannot be interpreted because the manipulation or measurement failed. A retained treatment does not establish its causal explanation.
 
-Write the machine-readable RST transition with references to a short explanatory note under `dikw/knowledge/research_notes/`. State the next decision the evidence changes. Stop at the predeclared budget or when no admissible next experiment remains. Do not call a plateau a proved ceiling.
+Write the machine-readable RST transition with references to a short explanatory note under `dikw/information/research_notes/`. State the next decision the evidence changes. Stop at the predeclared budget or when no admissible next experiment remains. Do not call a plateau a proved ceiling.
 
 ### External knowledge
 
-Use curated primary sources and project design documentation first. Search public literature only to resolve a specific missing concept or measurement choice. Do not put protected scans, unpublished results or private source text into search queries. Record the exact source, supported statement, scope and retrieval date in `dikw/information/sources/` or `dikw/knowledge/research_notes/`.
+Use curated primary sources and project design documentation first. Search public literature only to resolve a specific missing concept or measurement choice. Do not put protected scans, unpublished results or private source text into search queries. Record the exact source, supported statement, scope and retrieval date in `dikw/information/sources/` or `dikw/information/research_notes/`.
 
 A paper motivates a candidate. It does not validate that candidate for SAM4Tun. Local executable evidence and development GT determine its admissibility.

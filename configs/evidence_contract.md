@@ -87,4 +87,4 @@ Each comparison must be recoverable through:
 
 **Reference identity → observed artefact identity → executable measurement revision → comparison result → candidate feature revision → registered diagnosis → full-run outcome → acceptance decision.**
 
-Use content hashes and immutable record identities. The machine record carries measurements and links. Explain the representation, assumptions, and conclusions in `dikw/knowledge/` or `dikw/wisdom/`, not in code comments.
+Use content hashes and immutable record identities. The machine record carries measurements and links. Explain the representation, assumptions, and conclusions in `dikw/information/research_notes/`, `dikw/knowledge/`, or `dikw/wisdom/`, not in code comments.

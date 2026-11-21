@@ -3,7 +3,7 @@
 | Level | Path | Role |
 | --- | --- | --- |
 | Data | `dikw/data/` | Experiment observation summaries and `logs/` |
-| Information | `dikw/information/` | Organised context (including source provenance) |
+| Information | `dikw/information/` | Organised context, source provenance, and provisional research notes |
 | Knowledge | `dikw/knowledge/` | Tested concepts learned from experiments |
 | Wisdom | `dikw/wisdom/` | Ordered strategies and fitted formulas synthesised from tested knowledge |
 

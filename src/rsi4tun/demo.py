@@ -151,7 +151,7 @@ def run_demo(output: Path) -> dict:
                              ("boundary_symmetric_distance_fraction__delta", "circumference_fraction")),
                       manipulation_intervals=(("A", "depth_repair_fraction", 0.24, 0.26),
                                               ("B", "phase_correction_turns", 0.04, 0.06)),
-                      knowledge_ref="dikw/knowledge/research_notes/synthetic_example.md", candidate_proxy=candidate_proxy)
+                      knowledge_ref="dikw/information/research_notes/synthetic_example.md", candidate_proxy=candidate_proxy)
     arm_outputs = (output / "runs" / "arm_a", output / "runs" / "arm_b")
     commands = tuple((sys.executable, "-m", "rsi4tun", "fixture-run", "--case", str(case_path),
                       "--config", "configs/demo_runtime.json", "--output", str(path)) for path in arm_outputs)
@@ -177,7 +177,7 @@ def run_demo(output: Path) -> dict:
                                  treatment_decisions=({**asdict(decision_a), "activated": True},
                                                       {**asdict(decision_b), "activated": False}),
                                  next_action="submit_comparison_signal_and_response_to_development",
-                                 knowledge_ref="dikw/knowledge/research_notes/synthetic_example.md")
+                                 knowledge_ref="dikw/information/research_notes/synthetic_example.md")
 
     _commit_configuration(repo, revision_a.commit, {"missing_columns": 6, "phase_correction_turns": 0.0, "depth_k_coupling": 0.4})
     rejected_revision = store.freeze(external_assets=external_assets)

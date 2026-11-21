@@ -11,12 +11,12 @@ Promote an item only when evidence and executable support justify it. Directory 
 - An ordered strategy with a prediction and a rationale on every step.
 - A fitted formula with centres, scales, weights, and intercept.
 - A stated scope: which family, which scan, which fit rows.
-- Known stops and failed levers from the same experience.
+- Confirmed stops from the same experience. A single miss stays in `dikw/information/research_notes/` until the stop is confirmed.
 
 ## What does not belong here
 
 - Trial narratives and daily logs. Those stay under `dikw/data/logs/`.
-- Working notes and open explanations. Those stay under `dikw/knowledge/`.
+- Working notes and open explanations. Those stay under `dikw/information/research_notes/`.
 - Hand-picked weights described as learned.
 - A released gate. A prior with receipt `development_fit_pending` is not a released proxy.
 

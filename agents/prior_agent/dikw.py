@@ -48,7 +48,7 @@ def record_arm(
         + (f" Guard failures: {'; '.join(guard_fails)}." if guard_fails else "")
     )
     append_section(
-        dikw_root / "knowledge" / "research_notes" / "1_1_tune.md",
+        dikw_root / "information" / "research_notes" / "1_1_tune.md",
         arm_name,
         knowledge_body,
     )

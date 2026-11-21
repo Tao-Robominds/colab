@@ -49,7 +49,7 @@ def fixture(overlap=False, signal_change=None):
         "units": (("depth_valid_coverage__delta", "fraction"), ("k_phase_rms_turns__delta", "turns"),
                   ("boundary_symmetric_distance_fraction__delta", "circumference_fraction")),
         "manipulation_intervals": (("A", "depth_repair_fraction", 0.24, 0.26), ("B", "phase_correction_turns", 0.04, 0.06)),
-        "knowledge_ref": "dikw/knowledge/research_notes/protocol_fixture.md",
+        "knowledge_ref": "dikw/information/research_notes/protocol_fixture.md",
     }
     interventions = {"A": {"depth_repair_fraction": 0.25}, "B": {"phase_correction_turns": 0.05}}
     return arguments, comparison, signals, interventions
@@ -155,7 +155,7 @@ class ProtocolTests(unittest.TestCase):
                         append_outcome(path, before_digest, self.plan, diagnosis=dict(original, **changes),
                                        run_ids=("run-a", "run-b"), code_commits=("commit-a", "commit-b"),
                                        treatment_decisions=(), next_action="development_review",
-                                       knowledge_ref="dikw/knowledge/research_notes/fixture.md")
+                                       knowledge_ref="dikw/information/research_notes/fixture.md")
 
     def test_synthetic_results_cannot_promote_scientific_knowledge(self):
         request = {"claim_id": "claim", "claim_kind": "scoped_intervention_response", "scope_id": "scope",

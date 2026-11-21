@@ -270,7 +270,7 @@ class PriorAgentTests(unittest.TestCase):
             run_proud=lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("no proud")),
         )
         self.assertFalse(summary["history"][0]["guard_ok"])
-        knowledge = (self.root / "dikw/knowledge/research_notes/1_1_tune.md").read_text()
+        knowledge = (self.root / "dikw/information/research_notes/1_1_tune.md").read_text()
         self.assertIn("Lining guard passed: False", knowledge)
 
     def test_resume_keeps_completed_arms(self):

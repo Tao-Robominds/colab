@@ -56,9 +56,19 @@ y_bounds = processing["y_bounds"]
 y_exceptions_offsets = processing.get("y_exceptions_offsets", [])
 mirror_k_geometry = bool(config.get("mirror_k_geometry", False))
 template_scale = float(config.get("template_scale", 1.0))
+block_template_scale = {
+    str(k): float(v) for k, v in dict(config.get("block_template_scale") or {}).items()
+}
+multimask_output = bool(config.get("multimask_output", False))
+min_forward_blocks = int(config.get("min_forward_blocks", 0))
 extra_ring_segments = int(config.get("extra_ring_segments", config.get("segment_loop_extra", 0)))
 crop_taper_mm = float(config.get("crop_taper_mm", 700))
-print(f"[case=staggered] SAM extra_ring_segments={extra_ring_segments}, crop_taper_mm={crop_taper_mm}, y_bounds={y_bounds}")
+print(
+    f"[case=staggered] SAM extra_ring_segments={extra_ring_segments}, "
+    f"crop_taper_mm={crop_taper_mm}, y_bounds={y_bounds}, "
+    f"block_template_scale={block_template_scale or '{}'}, multimask_output={multimask_output}, "
+    f"min_forward_blocks={min_forward_blocks}"
+)
 
                                                                              
 _use_geometric_fallback = (
@@ -175,9 +185,10 @@ def generate_template_mask(height, width, prompt_centre, block, resolution=0.005
     vertices_real = block_geometry.template_vertices_mm(x, y, block)
     if block == 'K' and _mirror_k_geometry:
         vertices_real = _mirror_real_x_about_center(vertices_real, x)
-    if template_scale != 1.0:
+    scale = float(block_template_scale.get(block, template_scale))
+    if scale != 1.0:
         center = np.array([x, y], dtype=np.float64)
-        vertices_real = center + template_scale * (vertices_real - center)
+        vertices_real = center + scale * (vertices_real - center)
 
     vertices = vertices_real / (resolution*1000)
         
@@ -195,6 +206,20 @@ def generate_prompt_points(prompt_centre, initial_x, map_y, block, resolution,
     points_real, labels = block_geometry.prompt_points_mm(x, y, block)
     if block == "K" and _mirror_k_geometry:
         points_real = _mirror_real_x_about_center(points_real, x)
+    if bool(config.get("a1_wrap_negative_prompts", False)) and block == "A1":
+        wrap_neg = np.array(
+            [
+                [x - 500.0, y + 2000.0],
+                [x, y + 2000.0],
+                [x + 500.0, y + 2000.0],
+                [x - 500.0, y - 2000.0],
+                [x, y - 2000.0],
+                [x + 500.0, y - 2000.0],
+            ],
+            dtype=np.float64,
+        )
+        points_real = np.vstack([points_real, wrap_neg])
+        labels = np.concatenate([labels, np.zeros(len(wrap_neg), dtype=labels.dtype)])
 
     keep_mask = np.ones(len(labels), dtype=bool)
     for i in range(len(labels)):
@@ -286,12 +311,18 @@ def restore_sam_logits(logits, original_shape):
     return resized_logits
 
 def compute_block_label(segment_per_ring):
-
-    block_labels = ['K','B1']
+    configured = config.get("circumferential_block_order")
+    if configured:
+        labels = [str(x) for x in configured]
+        if len(labels) != segment_per_ring:
+            raise ValueError(
+                f"circumferential_block_order length {len(labels)} != segment_per_ring {segment_per_ring}"
+            )
+        return labels
+    block_labels = ['K', 'B1']
     num_a_labels = segment_per_ring - 3
     block_labels += [f'A{i+1}' for i in range(num_a_labels)]
     block_labels += ['B2']
-    
     return block_labels
 
 
@@ -348,16 +379,22 @@ def geometric_segment(detected_df, image_shape, ring_count, K_height, AB_height,
     return label_map, ring_map
 
 
+use_template_mask_input = bool(config.get("use_template_mask_input", True))
+
+
 def sam_prediction(cropped_image, points, labels, template_mask_logit):
     predictor.set_image(cropped_image)
-            
-    mask, score, logit = predictor.predict(
-            point_coords=points,
-            point_labels=labels,
-            mask_input=template_mask_logit,
-            multimask_output=False,
-    )
-        
+    predict_kwargs = {
+        "point_coords": points,
+        "point_labels": labels,
+        "multimask_output": multimask_output,
+    }
+    if use_template_mask_input:
+        predict_kwargs["mask_input"] = template_mask_logit
+    mask, score, logit = predictor.predict(**predict_kwargs)
+    if multimask_output:
+        best = int(np.argmax(score))
+        return mask[best:best + 1], float(score[best]), logit[best]
     return mask, score, logit[0]
                                   
 def process_row(df_row, image, resolution, segment_per_ring, segment_width,
@@ -397,7 +434,8 @@ def process_row(df_row, image, resolution, segment_per_ring, segment_width,
                 within_bounds = (points[:, 1] >= 0)
                 points = points[within_bounds]
                 labels = labels[within_bounds]
-                reverse = True
+                if min_forward_blocks <= 0 or (block_label_index + 1) >= min_forward_blocks:
+                    reverse = True
                 
             mask, score, logit = sam_prediction(cropped_image, points, labels, template_mask_logit)
         
@@ -704,6 +742,23 @@ if proud_residual_mm > 0.0:
     print(
         f"proud lining drop: radius_m={proud_radius_m}, residual_mm={proud_residual_mm}, dropped={dropped}"
     )
+ring_label_shifts = {
+    int(k): int(v) for k, v in dict(config.get("ring_label_shifts") or {}).items()
+}
+if ring_label_shifts:
+    original = updated_df["pred"].to_numpy()
+    pred_vals = original.copy()
+    ring_vals = updated_df["pred_ring"].to_numpy()
+    cycle = (1, 2, 3, 4, 5, 6)
+    for ring_id, steps in ring_label_shifts.items():
+        if steps % len(cycle) == 0:
+            continue
+        mask = ring_vals == ring_id
+        remap = {src: cycle[(i + steps) % len(cycle)] for i, src in enumerate(cycle)}
+        for src, dst in remap.items():
+            pred_vals[mask & (original == src)] = dst
+        print(f"ring_label_shift: ring={ring_id} steps={steps} points={int(mask.sum())}")
+    updated_df["pred"] = pred_vals
 updated_df.head()
 updated_df.to_csv(paths["final_csv"],index=False)
 df_pred = pd.DataFrame()
