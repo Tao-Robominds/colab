@@ -33,6 +33,14 @@ from helpers import family_io
 from helpers import staggered_blocks as block_geometry
 from helpers.proud_lining import drop_proud_lining
 
+_REPO_ROOT = os.path.abspath(os.path.join(_SAM4TUN_DIR, "..", ".."))
+_SRC = os.path.join(_REPO_ROOT, "src")
+if _SRC not in sys.path:
+    sys.path.insert(0, _SRC)
+from rsi4tun.theta_wrap import crop_image_theta, paste_patch_theta, wrap_prompt_y
+from rsi4tun.ring_theta_split import split_ring_source_by_theta
+from rsi4tun.dark_lining import drop_dark_lining
+
 tunnel_id = sys.argv[1]
 
 config, param_file, family_mode = family_io.load_stage_params("sam")
@@ -63,11 +71,12 @@ multimask_output = bool(config.get("multimask_output", False))
 min_forward_blocks = int(config.get("min_forward_blocks", 0))
 extra_ring_segments = int(config.get("extra_ring_segments", config.get("segment_loop_extra", 0)))
 crop_taper_mm = float(config.get("crop_taper_mm", 700))
+wrap_theta = bool(config.get("wrap_theta", False))
 print(
     f"[case=staggered] SAM extra_ring_segments={extra_ring_segments}, "
     f"crop_taper_mm={crop_taper_mm}, y_bounds={y_bounds}, "
     f"block_template_scale={block_template_scale or '{}'}, multimask_output={multimask_output}, "
-    f"min_forward_blocks={min_forward_blocks}"
+    f"min_forward_blocks={min_forward_blocks}, wrap_theta={wrap_theta}"
 )
 
                                                                              
@@ -245,24 +254,18 @@ def convert_to_pixel_coords(real_dist, resolution=0.005):
     return int(real_dist / (resolution*1000))
 
 def crop_image_and_mask_logits(image, cx, cy, crop_width, crop_height, block, resolution):
-    img_height, img_width, _ = image.shape
-
-                          
-    x1 = max(cx - crop_width // 2, 0)
-    y1 = max(cy - crop_height // 2, 0)
-    x2 = min(cx + crop_width // 2, img_width)
-    y2 = min(cy + crop_height // 2, img_height)
-
-    cropped_image = image[int(y1):int(y2), int(x1):int(x2)]
-    
-                                                       
-    prompt_centre_x = cx - x1
-    prompt_centre_y = cy - y1
-    prompt_centre = (prompt_centre_x,prompt_centre_y)
-    
-    cropped_template_mask = generate_template_mask(cropped_image.shape[0],cropped_image.shape[1],prompt_centre,block,resolution)
+    cropped_image, prompt_centre, _origin = crop_image_theta(
+        image,
+        cx,
+        cy,
+        crop_width,
+        crop_height,
+        wrap_theta=wrap_theta,
+    )
+    cropped_template_mask = generate_template_mask(
+        cropped_image.shape[0], cropped_image.shape[1], prompt_centre, block, resolution
+    )
     template_mask_logits = compute_logits_from_mask(cropped_template_mask)
-
     return cropped_image, template_mask_logits, prompt_centre
 
 def compute_logits_from_mask(mask, eps=1e-3):
@@ -428,15 +431,16 @@ def process_row(df_row, image, resolution, segment_per_ring, segment_width,
             cropped_image, template_mask_logit, prompt_centre = crop_image_and_mask_logits(
                 image, initial_x, map_y,2 * delta_x, 2 * delta_y, block, resolution)
             points, labels = generate_prompt_points(prompt_centre, initial_x, map_y, block, resolution, segment_width, K_height, AB_height, y_bounds)
-        
-                                                       
-            if np.any(points[:, 1] < 0):
+            crop_h = cropped_image.shape[0]
+            if wrap_theta:
+                points, labels = wrap_prompt_y(points, labels, crop_h, wrap_theta=True)
+            elif np.any(points[:, 1] < 0):
                 within_bounds = (points[:, 1] >= 0)
                 points = points[within_bounds]
                 labels = labels[within_bounds]
                 if min_forward_blocks <= 0 or (block_label_index + 1) >= min_forward_blocks:
                     reverse = True
-                
+
             mask, score, logit = sam_prediction(cropped_image, points, labels, template_mask_logit)
         
             results.append({
@@ -475,9 +479,10 @@ def process_row(df_row, image, resolution, segment_per_ring, segment_width,
             cropped_image, template_mask_logit, prompt_centre = crop_image_and_mask_logits(image, initial_x, map_y, 
                                                                                             2 * delta_x, 2 * delta_y, block, resolution)
             points, labels = generate_prompt_points(prompt_centre, initial_x, map_y, block, resolution, segment_width, K_height, AB_height, y_bounds)
-
-                                                       
-            if np.any((points[:, 1]+map_y-delta_y) > image.shape[0]):
+            crop_h = cropped_image.shape[0]
+            if wrap_theta:
+                points, labels = wrap_prompt_y(points, labels, crop_h, wrap_theta=True)
+            elif np.any((points[:, 1]+map_y-delta_y) > image.shape[0]):
                 within_bounds = ((points[:, 1]+map_y-delta_y) <= image.shape[0])
                 points = points[within_bounds]
                 labels = labels[within_bounds]
@@ -594,24 +599,19 @@ else:
             logits = item['logit']
             block = item['block']
             start_x, start_y = map(int, item['left_top'])
-
-            end_y, end_x = start_y + mask.shape[0], start_x + mask.shape[1]
-            start_y, start_x = max(0, start_y), max(0, start_x)
-            end_y, end_x = min(image.shape[0], end_y), min(image.shape[1], end_x)
-
-            valid_slice_y = slice(start_y, end_y)
-            valid_slice_x = slice(start_x, end_x)
-
             new_logits = restore_sam_logits(logits, mask.shape)
-            current_logits = logits_map[valid_slice_y, valid_slice_x]
-
-            if mask.shape != current_logits.shape or new_logits.shape != current_logits.shape:
-                raise ValueError(f"Shape mismatch after resizing: mask {mask.shape}, new_logits {new_logits.shape}, current_logits {current_logits.shape}")
-
-            update_mask = (new_logits > current_logits) & mask
-            logits_map[valid_slice_y, valid_slice_x][update_mask] = new_logits[update_mask]
-            label_map[valid_slice_y, valid_slice_x][update_mask] = block_to_label[block]
-            ring_map[valid_slice_y, valid_slice_x][update_mask] = ring_index
+            paste_patch_theta(
+                logits_map,
+                label_map,
+                ring_map,
+                mask,
+                new_logits,
+                block_to_label[block],
+                ring_index,
+                start_x,
+                start_y,
+                wrap_theta=wrap_theta,
+            )
 
     result_image = label_map
     ring_image = ring_map
@@ -745,8 +745,9 @@ if proud_residual_mm > 0.0:
 ring_label_shifts = {
     int(k): int(v) for k, v in dict(config.get("ring_label_shifts") or {}).items()
 }
+source_labels = updated_df["pred"].to_numpy().copy()
 if ring_label_shifts:
-    original = updated_df["pred"].to_numpy()
+    original = source_labels
     pred_vals = original.copy()
     ring_vals = updated_df["pred_ring"].to_numpy()
     cycle = (1, 2, 3, 4, 5, 6)
@@ -759,6 +760,37 @@ if ring_label_shifts:
             pred_vals[mask & (original == src)] = dst
         print(f"ring_label_shift: ring={ring_id} steps={steps} points={int(mask.sum())}")
     updated_df["pred"] = pred_vals
+ring_theta_split = dict(config.get("ring_theta_split") or {})
+if ring_theta_split:
+    updated_df["pred"] = split_ring_source_by_theta(
+        updated_df["pred"].to_numpy(),
+        source_labels,
+        updated_df["pred_ring"].to_numpy(),
+        updated_df["theta"].to_numpy(),
+        ring=int(ring_theta_split["ring"]),
+        source_label=int(ring_theta_split["source_label"]),
+        theta_cut=float(ring_theta_split["theta"]),
+        below_label=int(ring_theta_split["below_label"]),
+        at_or_above_label=int(ring_theta_split["at_or_above_label"]),
+    )
+    selected = (source_labels == int(ring_theta_split["source_label"])) & (
+        updated_df["pred_ring"].to_numpy() == int(ring_theta_split["ring"])
+    )
+    print(
+        f"ring_theta_split: ring={int(ring_theta_split['ring'])} "
+        f"source={int(ring_theta_split['source_label'])} "
+        f"theta={float(ring_theta_split['theta'])} points={int(selected.sum())}"
+    )
+dark_lining_below = config.get("dark_lining_below")
+if dark_lining_below is not None:
+    labels_before = updated_df["pred"].to_numpy()
+    updated_df["pred"] = drop_dark_lining(
+        labels_before,
+        updated_df["intensity"].to_numpy(),
+        below=float(dark_lining_below),
+    )
+    dropped = int(((labels_before >= 1) & (labels_before <= 6) & (updated_df["pred"].to_numpy() == 0)).sum())
+    print(f"dark lining drop: below={float(dark_lining_below)} dropped={dropped}")
 updated_df.head()
 updated_df.to_csv(paths["final_csv"],index=False)
 df_pred = pd.DataFrame()

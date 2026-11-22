@@ -85,6 +85,96 @@ def features_from_action(action: dict, base_features: dict) -> dict:
     return feats
 
 
+def maybe_refit_seam_proxy(
+    wisdom_dir: Path,
+    rows: list[dict],
+    *,
+    border_area_ratio: float,
+    baseline_miou: float,
+    latest_miou: float,
+    tolerance: float = 0.01,
+    border_filled: float = 0.8,
+) -> Path | None:
+    if border_area_ratio < border_filled:
+        return None
+    if abs(latest_miou - baseline_miou) <= tolerance:
+        return None
+    from rsi4tun.proxy import DevelopmentRow, fit_proxy
+
+    feature_ids = ("k_wedge", "angle_positive", "ab_rel_error", "proud_cut", "border_area_ratio")
+    development = tuple(
+        DevelopmentRow(
+            "1-1",
+            "1-1",
+            row["run_id"],
+            tuple((key, float(row["features"][key])) for key in feature_ids),
+            float(row["miou"]),
+            bool(row.get("is_baseline", False)),
+        )
+        for row in rows
+        if all(key in row["features"] for key in feature_ids)
+    )
+    if len(development) < 2:
+        return None
+    fitted = fit_proxy(
+        development,
+        feature_ids,
+        proxy_id="1_1_tune_seam_v1",
+        evidence_contract_digest="1-1-tune-proxy-seam-v1",
+        backend="1_1_tune",
+    )
+    record = {
+        "proxy_id": fitted.proxy_id,
+        "target": "final_3d_semantic_miou",
+        "status": "development_fit_pending",
+        "scope": {
+            "family": "staggered",
+            "scan": "data/scans/1-1.txt",
+            "case_id": "1-1",
+            "group_id": "1-1",
+        },
+        "feature_ids": list(fitted.feature_ids),
+        "centres": list(fitted.centres),
+        "scales": list(fitted.scales),
+        "weights": list(fitted.weights),
+        "intercept": fitted.intercept,
+        "evidence_contract_digest": fitted.evidence_contract_digest,
+        "backend": fitted.backend,
+        "validation_receipt": fitted.validation_receipt,
+        "fit_rows_digest": fitted.fit_rows_digest,
+        "n_rows": len(development),
+        "equation": "clip(intercept + sum(weight_i * (x_i - centre_i) / scale_i), 0, 1)",
+        "notes": (
+            "Development fit including border_area_ratio. One group. "
+            "Not accepted wisdom. Not a released proxy."
+        ),
+    }
+    out = wisdom_dir / "1_1_proxy_seam.json"
+    out.write_text(json.dumps(record, indent=2) + "\n")
+    return out
+
+
+def record_seam_outcome(
+    dikw_root: Path,
+    arm_name: str,
+    *,
+    sealed: dict,
+    vector: dict,
+    miou: float,
+    rule: str,
+) -> None:
+    body = (
+        f"Arm `{arm_name}` sealed border ratio {sealed.get('predicted_border_area_ratio')}. "
+        f"Observed border ratio {vector.get('border_area_ratio')}. "
+        f"Mean IoU {miou:.3f}. Rule `{rule}`."
+    )
+    append_section(
+        dikw_root / "information" / "research_notes" / "1_1_seam_diagnosis.md",
+        arm_name,
+        body,
+    )
+
+
 def maybe_refit_1_1_proxy(
     wisdom_dir: Path,
     sample_proxy_path: Path,
@@ -92,6 +182,11 @@ def maybe_refit_1_1_proxy(
     latest_features: dict,
     latest_miou: float,
 ) -> Path | None:
+    out = wisdom_dir / "1_1_proxy.json"
+    if out.is_file():
+        current = json.loads(out.read_text())
+        if int(current.get("n_rows") or 0) > len(rows):
+            return None
     sample = json.loads(sample_proxy_path.read_text())
     predicted = sample_proxy_prediction(sample, latest_features)
     if abs(predicted - latest_miou) <= 0.02 and len(rows) < 3:
@@ -140,6 +235,5 @@ def maybe_refit_1_1_proxy(
         "equation": "clip(intercept + sum(weight_i * (x_i - centre_i) / scale_i), 0, 1)",
         "notes": "Development fit on scan 1-1. Not accepted wisdom.",
     }
-    out = wisdom_dir / "1_1_proxy.json"
     out.write_text(json.dumps(record, indent=2) + "\n")
     return out

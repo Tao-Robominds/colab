@@ -8,7 +8,7 @@ Measurements: `dikw/data/1_1_tune.md`.
 
 Design of the arms: `dikw/information/1_1_tune.md`.
 
-The fitted formula is `dikw/wisdom/1_1_proxy.json`. The ordered prior is `dikw/wisdom/1_1_tune_strategy.md`. Neither is accepted wisdom.
+The fitted formula is `dikw/wisdom/1_1_proxy.json`. The tune experience is `dikw/wisdom/staggered_tune_experience.md`. Neither is accepted wisdom.
 
 ## Observations
 
@@ -28,13 +28,13 @@ On a13, true A2 points that are wrong go 89.3% to other blocks (mostly A1) and 1
 
 AB height 3100 (`a14_ab3100`) scored 0.804 and A2-block IoU 0.598. AB height 3400 (`a15_ab3400`) scored 0.748 and A2-block IoU 0.371. Both sealed calls failed. Both guards versus a13 failed.
 
-Angle 8.5 (`a16_angle_850`) scored 0.848. Angle 6.5 (`a17_angle_650`) scored 0.850. Both sealed calls for mean IoU ≥ 0.860 failed. Both guards held. `a17` is the best arm.
+Angle 8.5 (`a16_angle_850`) scored 0.848. Angle 6.5 (`a17_angle_650`) scored 0.850. Both sealed calls for mean IoU ≥ 0.860 failed. Both guards held. `a17` was the best arm until the ring-2 cycle.
 
 Segment width 1100 (`a18_width_1100`) scored 0.848. Width 1300 (`a19_width_1300`) scored 0.847. Both sealed calls failed. Both guards versus a17 held.
 
 B1 template height 1519.89 (`a20_b1_height_1519`) scored 0.849. The sealed call failed. The guard held. One miss. Not a confirmed wisdom stop.
 
-The highest mean IoU is 0.850 on `a17_angle_650`. A2-block IoU there is 0.727. The target 0.9 was not reached.
+At this point in the campaign the highest mean IoU was 0.850 on `a17_angle_650`. A2-block IoU there was 0.727. The target 0.9 was not reached. Later arms left that score. The current best is in the open gap below.
 
 ## Associations
 
@@ -100,18 +100,30 @@ A prediction held when the sealed mean IoU was within 0.02 of the score, except 
 
 `a35` min_forward_blocks 4 scored 0.805 with A2 0.448. Guard failed.
 
-`a36` and `a37` full runs with `ring_label_shifts={"2":1}` scored 0.888. Guard held. Call for 0.9 failed.
+`a36` and `a37` full runs with `ring_label_shifts={"2":1}` scored 0.888. The a36 log shifts before the proud drop. The a37 log drops proud before the shift. The sealed call on both was mean IoU ≥ 0.870 and A2 ≥ 0.80. The mean held. A2 was 0.797 and 0.793, so the A2 call failed. Guard held.
 
 `a38`–`a42` proud replays on a34 scored 0.882–0.890. None reached 0.9. Best tie `a41` at 0.10 m / 6 mm.
 
 `a43` full run with ring-2 shift and that proud scored 0.891 with A2 0.802. Call for 0.9 failed. Guard held. Config chase stopped.
 
+`a44_a13_ring2_b2theta` full run of the a13 stack with ring-2 shift and the B2 theta split at 12.4 scored 0.898 with A2 0.806. Sealed call ≥ 0.899 failed. Guard versus a43 held. Call for 0.9 failed.
+
+`a45_a44_intensity_m1400` full run of the a44 stack with predicted lining below intensity −1400 returned to background scored 0.917 with A2 0.880. Sealed call ≥ 0.917 held. Guard versus a44 held.
+
 ## Open gap
 
-Best mean IoU is 0.891 on `a43`. The sample prior's 0.902 was fit on `data/scans/sample.txt`. It did not appear on this scan.
+Best stage-6 mean IoU is 0.917 on `a45_a44_intensity_m1400`. The sample prior's 0.902 was fit on `data/scans/sample.txt`. This scan's stage-6 score is now above that figure. The −1400 cut was chosen on this scan.
 
-Ring-2 cyclic shift opened the 0.89 band. Further SAM knobs and proud retunes did not open 0.9. Remaining lift needs detect/placement change, not another config knob.
+Ring-2 cyclic shift opened the 0.89 band. Further SAM knobs and proud retunes did not open 0.9.
+
+A later relabel of a13 labels, not of `a43`, scores 0.899. It is not a stage-6 arm. The procedure is in `dikw/information/research_notes/1_1_seam_diagnosis.md`.
+
+`a21_a2_over_a1` and `a22_a2_bias_2` scored 0.838. They are not a clean overlap test. `a23` is. `a40_wrap_theta_on_a13` scored 0.382 after the theta border filled.
+
+The retained proxy does not take the mask, the ring cycle, the theta split, or the dark-lining cut. It cannot separate the bands those changes opened. No replacement was fit.
+
+The tested relations are proposed in `dikw/knowledge/claims/1_1_tune.md`. The tune experience is `dikw/wisdom/staggered_tune_experience.md`.
 
 ## Limits
 
-One scan. No repeated seed. Movements inside 0.003 mean IoU are inside the observed band. That band is not a proved bound. The 0.9 target was not reached. Config chase on this scan is closed.
+One scan. No repeated seed. Movements inside 0.003 mean IoU are inside the observed band. That band is not a proved bound. The 0.9 target was reached on `a45`. The intensity cut, the theta cut, and the ring choice are not released gates. The ceiling above 0.917 is unknown. The current baseline directory does not still hold the 0.785 episode start.

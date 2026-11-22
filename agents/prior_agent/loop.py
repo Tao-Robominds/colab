@@ -9,7 +9,9 @@ from prior_agent.client import OpusClient, parse_action
 from prior_agent.dikw import (
     features_from_action,
     maybe_refit_1_1_proxy,
+    maybe_refit_seam_proxy,
     record_arm,
+    record_seam_outcome,
 )
 from prior_agent.prompt import build_system_prompt, load_identity
 from prior_agent.runner import (
@@ -18,6 +20,7 @@ from prior_agent.runner import (
     parse_performance,
     proud_replay,
     run_full_pipeline,
+    sam_replay,
     spill_count,
 )
 
@@ -25,6 +28,7 @@ from prior_agent.runner import (
 ChatFn = Callable[[list[dict[str, str]]], str]
 RunFullFn = Callable[[Path, Path, str, Path, Path, str], Path]
 ProudFn = Callable[[Path, Path, Path, Path, float, float], Path]
+SamReplayFn = Callable[[Path, Path, str, str, Path, Path, str], Path]
 
 
 def evidence_message(
@@ -53,6 +57,10 @@ def seal_prediction(path: Path, action: dict) -> None:
     for key in required:
         if key not in action:
             raise ValueError(f"prediction_missing:{key}")
+    if action.get("action") == "sam_replay":
+        for key in ("predicted_border_area_ratio", "predicted_hold", "source_arm"):
+            if key not in action:
+                raise ValueError(f"prediction_missing:{key}")
     path.write_text(json.dumps(action, indent=2) + "\n")
 
 
@@ -93,6 +101,64 @@ def clear_incomplete_arm(tune_root: Path, name: str) -> None:
         shutil.rmtree(params)
 
 
+def _diagnose(run_dir: Path) -> dict | None:
+    if not (run_dir / "results.pkl").is_file() or not (run_dir / "depth_map.npy").is_file():
+        return None
+    from rsi4tun.seam_diagnosis import diagnose_arm, summarize_vector
+
+    return summarize_vector(diagnose_arm(run_dir))
+
+
+def open_seam_notice(tune_root: Path, history: list[dict]) -> dict | None:
+    names: list[str] = []
+    preferred = "a13_a08_proud_radius_007"
+    if (tune_root / preferred / "results.pkl").is_file():
+        names.append(preferred)
+    for entry in history:
+        name = entry.get("name")
+        if name and name not in names and (tune_root / name / "results.pkl").is_file():
+            names.append(name)
+    for source in names:
+        wrapped = any(
+            entry.get("action") == "sam_replay"
+            and entry.get("source_arm") == source
+            and entry.get("wrap_theta")
+            for entry in history
+        )
+        if wrapped:
+            continue
+        vector = _diagnose(tune_root / source)
+        if vector and vector.get("seam_open"):
+            return {
+                "seam_open": True,
+                "source_arm": source,
+                "vector": vector,
+                "required_action": "sam_replay",
+                "required_override": {"parameters_sam.json": {"wrap_theta": True}},
+                "hint": "Seam is open. Only sam_replay with wrap_theta true is allowed.",
+            }
+    return None
+
+
+def _is_wrap_theta_action(action: dict) -> bool:
+    if action.get("action") != "sam_replay":
+        return False
+    sam = ((action.get("overrides") or {}).get("parameters_sam.json") or {})
+    return bool(sam.get("wrap_theta"))
+
+
+def _clone_source_params(
+    family_dir: Path,
+    tune_root: Path,
+    source_arm: str,
+    dest: Path,
+    overrides: dict,
+) -> Path:
+    source_params = tune_root / "params" / source_arm
+    base = source_params if source_params.is_dir() else family_dir
+    return clone_params(base, dest, overrides)
+
+
 def run_episode(
     root: Path,
     tunnel_id: str = "1-1",
@@ -101,6 +167,7 @@ def run_episode(
     chat: ChatFn | None = None,
     run_full: RunFullFn | None = None,
     run_proud: ProudFn | None = None,
+    run_sam: SamReplayFn | None = None,
 ) -> dict:
     root = root.resolve()
     tune_root = root / "data/development" / tunnel_id / "tune"
@@ -122,10 +189,10 @@ def run_episode(
         "spill": baseline_spill,
     }
     identity = load_identity(root / ".cursor/rules/private/identity.mdc")
-    strategy = (root / "dikw/wisdom/sample_tune_strategy.md").read_text()
+    experience = (root / "dikw/wisdom/staggered_tune_experience.md").read_text()
     sample_proxy_path = root / "dikw/wisdom/sample_proxy.json"
     proxy_json = sample_proxy_path.read_text()
-    system = build_system_prompt(identity, strategy, proxy_json)
+    system = build_system_prompt(identity, experience, proxy_json)
     if chat is None:
         client = OpusClient(root)
         chat = client.complete
@@ -133,6 +200,8 @@ def run_episode(
         run_full = run_full_pipeline
     if run_proud is None:
         run_proud = proud_replay
+    if run_sam is None:
+        run_sam = sam_replay
 
     history = load_completed(tune_root)
     done_names = {entry["name"] for entry in history}
@@ -144,6 +213,14 @@ def run_episode(
         {
             "run_id": "baseline",
             "features": dict(DEFAULT_FEATURES),
+            "miou": baseline["mIoU"],
+            "is_baseline": True,
+        }
+    ]
+    seam_rows: list[dict] = [
+        {
+            "run_id": "baseline",
+            "features": {**DEFAULT_FEATURES, "border_area_ratio": 1.0},
             "miou": baseline["mIoU"],
             "is_baseline": True,
         }
@@ -166,10 +243,33 @@ def run_episode(
                 "is_baseline": False,
             }
         )
+        border = 1.0
+        if entry.get("vector") and "border_area_ratio" in entry["vector"]:
+            border = float(entry["vector"]["border_area_ratio"])
+        elif (tune_root / entry["name"] / "results.pkl").is_file():
+            vector = _diagnose(tune_root / entry["name"])
+            if vector:
+                border = float(vector["border_area_ratio"])
+        seam_rows.append(
+            {
+                "run_id": entry["name"],
+                "features": {**feats, "border_area_ratio": border},
+                "miou": entry["mIoU"],
+                "is_baseline": False,
+            }
+        )
     system_message = {"role": "system", "content": system}
-    notice = None
+    notice = open_seam_notice(tune_root, history)
 
     while full_runs < max_full_runs and best["mIoU"] < target:
+        seam_gate = open_seam_notice(tune_root, history)
+        if seam_gate and notice is None:
+            notice = seam_gate
+        elif seam_gate and notice is not None:
+            merged = {**seam_gate, **notice}
+            if "error" in notice:
+                merged["error"] = notice["error"]
+            notice = merged
         raw = chat(
             [
                 system_message,
@@ -194,6 +294,18 @@ def run_episode(
                 "error": "arm_name_already_scored",
                 "name": name,
                 "hint": "Choose a new name. Completed arms are in history.",
+            }
+            continue
+        seam_gate = open_seam_notice(tune_root, history)
+        if seam_gate and not (
+            _is_wrap_theta_action(action)
+            and action.get("source_arm") == seam_gate["source_arm"]
+        ):
+            notice = {
+                "error": "seam_requires_wrap_theta",
+                "source_arm": seam_gate["source_arm"],
+                "vector": seam_gate["vector"],
+                "hint": seam_gate["hint"],
             }
             continue
         prediction_path = tune_root / f"{name}_PREDICTION.md"
@@ -252,9 +364,31 @@ def run_episode(
                 residual,
                 radius,
             )
+        elif kind == "sam_replay":
+            source = str(action.get("source_arm") or "")
+            overrides = action.get("overrides") or {
+                "parameters_sam.json": {"wrap_theta": True}
+            }
+            params_dir = _clone_source_params(
+                family_dir,
+                tune_root,
+                source,
+                tune_root / "params" / name,
+                overrides,
+            )
+            run_dir = run_sam(
+                root,
+                tune_root,
+                name,
+                source,
+                params_dir,
+                scan_path,
+                tunnel_id,
+            )
         else:
             raise ValueError(f"unknown_action:{kind}")
 
+        vector = _diagnose(run_dir)
         metrics = parse_performance(run_dir / "evaluation" / "performance.md")
         spill = spill_count(run_dir, scan_path)
         guard_ok, guard_fails = lining_guard(metrics["classes"], baseline["classes"])
@@ -285,6 +419,68 @@ def run_episode(
             feats,
             metrics["mIoU"],
         )
+        border = float(vector["border_area_ratio"]) if vector else 1.0
+        seam_rows.append(
+            {
+                "run_id": name,
+                "features": {**feats, "border_area_ratio": border},
+                "miou": metrics["mIoU"],
+                "is_baseline": False,
+            }
+        )
+        rule = None
+        if kind == "sam_replay" and vector is not None:
+            from rsi4tun.seam_diagnosis import compare_sealed_pattern, diagnose_arm
+
+            report = diagnose_arm(run_dir)
+            source_miou = None
+            source = action.get("source_arm")
+            for entry in history:
+                if entry.get("name") == source and "mIoU" in entry:
+                    source_miou = float(entry["mIoU"])
+                    break
+            if source_miou is None and source:
+                source_perf = tune_root / source / "evaluation" / "performance.md"
+                if source_perf.is_file():
+                    source_miou = float(parse_performance(source_perf)["mIoU"])
+            if source_miou is None:
+                source_miou = float(best["mIoU"])
+            rule = compare_sealed_pattern(
+                action,
+                report,
+                baseline_miou=source_miou,
+                observed_miou=float(metrics["mIoU"]),
+            )
+            record_seam_outcome(
+                root / "dikw",
+                name,
+                sealed=action,
+                vector=vector,
+                miou=float(metrics["mIoU"]),
+                rule=rule,
+            )
+            if rule == "both_moved":
+                maybe_refit_seam_proxy(
+                    root / "dikw/wisdom",
+                    seam_rows,
+                    border_area_ratio=border,
+                    baseline_miou=source_miou,
+                    latest_miou=float(metrics["mIoU"]),
+                )
+            elif rule == "metric_not_target":
+                notice = {
+                    "disagreement": "metric_not_target",
+                    "vector": vector,
+                    "mIoU": metrics["mIoU"],
+                    "hint": "Border filled and mean IoU stayed. Do not treat the metric as mean IoU.",
+                }
+            elif rule == "treatment_failed":
+                notice = {
+                    "disagreement": "treatment_failed",
+                    "vector": vector,
+                    "mIoU": metrics["mIoU"],
+                    "hint": "Border stayed short. Do not refit the seam proxy.",
+                }
         entry = {
             "name": name,
             "action": kind,
@@ -295,6 +491,14 @@ def run_episode(
             "guard_fails": guard_fails,
             "prediction_held": held,
             "classes": metrics["classes"],
+            "source_arm": action.get("source_arm"),
+            "wrap_theta": bool(
+                ((action.get("overrides") or {}).get("parameters_sam.json") or {}).get(
+                    "wrap_theta"
+                )
+            ),
+            "vector": vector,
+            "seam_rule": rule,
         }
         history.append(entry)
         done_names.add(name)

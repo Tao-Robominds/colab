@@ -18,6 +18,7 @@ ALLOWED_SAM = {
     "K_height",
     "AB_height",
     "angle",
+    "wrap_theta",
 }
 ALLOWED_DENOISE = {
     "mask_r_low",
@@ -199,6 +200,63 @@ def run_full_pipeline(
     code = proc.wait()
     if code != 0:
         raise subprocess.CalledProcessError(code, command)
+    return dest
+
+
+def sam_replay(
+    root: Path,
+    tune_root: Path,
+    arm_name: str,
+    source_arm: str,
+    params_dir: Path,
+    scan_path: Path,
+    subset_id: str,
+) -> Path:
+    source_dir = tune_root / source_arm
+    if not source_dir.is_dir():
+        raise FileNotFoundError(f"sam_replay_source_missing:{source_arm}")
+    if not (source_dir / "state.pkl").is_file():
+        raise FileNotFoundError(f"sam_replay_state_missing:{source_arm}")
+    dest = tune_root / arm_name
+    if dest.exists():
+        shutil.rmtree(dest)
+    shutil.copytree(source_dir, dest)
+    for stale in ("results.pkl", "final.csv", "only_label.csv", "evaluation"):
+        path = dest / stale
+        if path.is_dir():
+            shutil.rmtree(path)
+        elif path.is_file():
+            path.unlink()
+    env = os.environ.copy()
+    env["MPLBACKEND"] = "Agg"
+    env["PROXY4TUN_OUT_ROOT"] = str(tune_root)
+    env["PROXY4TUN_INPUT_TXT"] = str(scan_path)
+    env["PROXY4TUN_PARAMS_DIR"] = str(params_dir)
+    env["PROXY4TUN_TUNNEL_META"] = str(root / "configs/meta/tunnel_meta.json")
+    env["PROXY4TUN_SUBSET"] = subset_id
+    case = "sample" if subset_id == "sample" else "staggered"
+    case_root = root / "sam4tun" / case
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(case_root), str(root / "sam4tun/segment-anything"), str(root / "src"), env.get("PYTHONPATH", "")]
+    )
+    python = root / "venv/bin/python"
+    exe = str(python) if python.is_file() else sys.executable
+    stage_log = tune_root / f"{arm_name}_stages.log"
+    with stage_log.open("wb") as log_fp:
+        for stage in ("5_sam.py", "6_evaluation.py"):
+            command = [exe, "-u", str(case_root / stage), arm_name]
+            proc = subprocess.Popen(
+                command,
+                cwd=str(root),
+                env=env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            assert proc.stdout is not None
+            relay_output(proc.stdout, log_fp)
+            code = proc.wait()
+            if code != 0:
+                raise subprocess.CalledProcessError(code, command)
     return dest
 
 

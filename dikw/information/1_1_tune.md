@@ -6,7 +6,7 @@ The measurements are in `dikw/data/1_1_tune.md`. This page says what those arms 
 
 The tune tried to raise 6-class mean IoU above 0.9 on `data/scans/1-1.txt`.
 
-The family is `staggered`. The first episode used eleven full runs and two proud replays and stopped after `a13` at mean IoU 0.849. The live campaign reached 0.891 on `a43` and stopped the config chase short of 0.9.
+The family is `staggered`. The first episode used eleven full runs and two proud replays and stopped after `a13` at mean IoU 0.849. The live campaign reached 0.891 on `a43`. `a44_a13_ring2_b2theta` then ran the a13 stack through stages 1–6 with the ring-2 cycle and the B2 theta split, and stage 6 wrote 0.898. `a45_a44_intensity_m1400` kept that stack and dropped predicted lining with intensity below −1400. Stage 6 wrote 0.917. The 0.9 target was reached on that arm.
 
 The living baseline `data/development/1-1/baseline` is not overwritten. The shared family directory is not overwritten. Each full run clones a param pack and applies only the overrides below.
 
@@ -60,14 +60,22 @@ When `proud_residual_mm` is absent, SAM does not call `drop_proud_lining`. When 
 
 **Circumferential / SAM exploratories on a17.** `a24_reverse_circ` sets `reverse_circumferential` true. `a25_a1_scale_090` / `a26_a2_scale_110` set `block_template_scale` for one block. `a27_swap_a1_a2_walk` sets `circumferential_block_order` to [K,B1,A2,A1,A3,B2]. `a28_multimask` sets `multimask_output` true. `a30_padding_250` sets padding 250. `a31_no_template_mask` sets `use_template_mask_input` false. `a32_extra_ring_1` sets `extra_ring_segments` 1. `a33_a1_wrap_negatives` sets `a1_wrap_negative_prompts` true.
 
-**Ring-2 label shift.** `a34_ring2_label_shift` is an assignment replay: on pred_ring 2 only, cycle lining labels +1 (1→2→…→6→1). Stages 1–5 are not rerun. `a36_ring2_shift` and `a37_ring2_shift_after_proud` are full runs with `ring_label_shifts={"2":1}` (shift after proud). `a35_min_forward_4` sets `min_forward_blocks` to 4 on the a17 stack.
+**Assignment replays before a23.** `a21_a2_over_a1` and `a22_a2_bias_2` have result files and no param pack. The a21 sealed prediction names a17 masks and an A1→A2 overlap rule. Their point labels differ from the current `a17_angle_650` `only_label.csv` by 34,741 and 34,046 points. `a23` differs from that file by 734 points. Do not read `a21` or `a22` as the same comparison as `a23`.
+
+**Ring-2 label shift.** `a34_ring2_label_shift` is an assignment replay: on pred_ring 2 only, cycle lining labels +1 (1→2→…→6→1). Stages 1–5 are not rerun. `a36_ring2_shift` and `a37_ring2_shift_after_proud` are full runs with `ring_label_shifts={"2":1}`. The a36 stage log prints the shift and then the proud drop. The a37 stage log prints the proud drop and then the shift. The saved `parameters_sam.json` files do not record that order. `a35_min_forward_4` sets `min_forward_blocks` to 4 on the a17 stack. The a36 and a37 sealed calls were mean IoU ≥ 0.870 and A2 ≥ 0.80, not ≥ 0.9. Both means were 0.888. Both A2 scores were below 0.80.
+
+**Theta wrap.** `a40_wrap_theta_on_a13` is a SAM replay from the a13 stack with `wrap_theta` true. Stages 1–4 are not a fresh unfolding. It has `evaluation/performance.md` and no `*_result.json`. Mean IoU was 0.382. It is not a comparison that holds labels fixed.
 
 **Proud retune on a34.** `a38`–`a42` start from a34 labels, apply `drop_proud_lining` only, and rescore. Radii/residuals: 0.10/5, 0.15/5, 0.20/5, 0.10/6, 0.07/4. `a43_ring2_shift_proud_r10_6mm` is a full run with `ring_label_shifts={"2":1}`, proud 0.10 m / 6 mm.
+
+**a13 relabel, then a44.** The in-memory rewrite of frozen a13 labels is in `dikw/information/research_notes/1_1_seam_diagnosis.md`. It scored 0.899 and did not rerun stages 1–6. `a44_a13_ring2_b2theta` is the full run of that rule: a13 stack, `ring_label_shifts={"2":1}`, `ring_theta_split` at theta 12.4 on original B2 of pred_ring 2. Stage 6 wrote 0.898. The sealed call for 0.899 failed. The lining guard versus a43 held.
+
+**Dark lining on a44.** `a45_a44_intensity_m1400` is a full run of the a44 stack with `dark_lining_below` −1400. Predicted lining darker than that returns to background. Stage 6 wrote 0.917. A2 was 0.880. The sealed call for 0.917 held. The lining guard versus a44 held. The cut was chosen on this scan.
 
 The lining guard for campaign arms is versus the current best arm, not versus the 0.785 episode baseline.
 
 ## Which baseline to cite
 
-I use `data/development/1-1/baseline` when I compare an arm with the start of the first episode. That score is mean IoU 0.785.
+The episode-start score in `dikw/data/1_1_tune.md` is mean IoU 0.785. The file now at `data/development/1-1/baseline/evaluation/performance.md` reads 0.848. Do not cite that file as the episode start.
 
-For the live campaign, the lining guard fails an arm when any lining class falls more than 0.02 below the current best arm (a13). A higher K-block IoU or a higher background IoU is not the target.
+For the live campaign, the lining guard fails an arm when any lining class falls more than 0.02 below the current best arm. That comparison arm moved as the best score moved. It is not frozen at a13. A higher K-block IoU or a higher background IoU is not the target.
